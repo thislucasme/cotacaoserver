@@ -78,6 +78,15 @@ export class CotacaoController {
 		}
 	}
 
+
+	@Post("teste-requisicao")
+	async testeRequisicao() {
+		const soma = 3 % 2;
+		const result = soma;
+		const raiz = soma + result / soma + 3.56 * soma;
+		return { soma: raiz }
+	}
+
 	@Post('update')
 	async updateItemCotacao(@Body() body: ItemCotacaoTDO) {
 		try {
@@ -118,19 +127,25 @@ export class CotacaoController {
 		res.status(HttpStatus.ACCEPTED).send(result)
 	}
 
+
 	@Get('chave')
 	async converter() {
 		return restaurar('DCB4C1B7B8C5D7B5B4C7BCC6C7B4D7B7B8D7C2BFBCC9B8BCC5B4D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7')
 	}
 
+
 	async contarItens() {
 
 	}
+
+
 	@Post('calcular-total')
 	async calcularTotal(@Body() body: CotacaoTDOPayload) {
 		const result = await this.cotacaoService.calcularTotal(body);
 		return result;
 	}
+
+
 
 	@Get('xml')
 	async xml(@Body() body: any, @Res() res: Response) {

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ClienteService } from 'src/cliente/cliente.service';
 import { CotacaoService } from 'src/cotacao/cotacao.service';
-import { CotacaoTDOPayload, ItemCotacaoTDO } from 'src/models/types';
+import * as types from 'src/models/types';
 import { PriceService } from './price.service';
 
 @Controller('price')
@@ -14,7 +14,7 @@ export class PriceController {
 		@Param('codCotacao') codCotacao: string, @Param('codFornecedor')
 		codFornecedor: string, @Param('codEmpresa') codEmpresa: string, @Param('codContrato') codContrato: string) {
 
-		const body: CotacaoTDOPayload = {
+		const body: types.CotacaoTDOPayload = {
 			codigo: codCotacao,
 			fornecedor: codFornecedor,
 			flag: '',
@@ -26,7 +26,7 @@ export class PriceController {
 		return [await this.priceService.getItensCotacao(codCotacao, codFornecedor, codContrato, codEmpresa), total];
 	}
 	@Post('update')
-	async updateItemCotacao(@Body() body: ItemCotacaoTDO) {
+	async updateItemCotacao(@Body() body: types.ItemCotacaoTDO) {
 		try {
 			const result = await this.cotacaoService.updateItemCotacao(body);
 			return result;

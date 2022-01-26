@@ -97,17 +97,24 @@ export class CotacaoService {
 		//const result = knex1.schema.raw('select * from dece01');
 		//return result;
 
+		// const result = await knex1.schema.raw(
+		// 	`UPDATE deic01, dece01 SET deic01.custo6 = ${itemCotacao.valorProduto},
+		// 	deic01.mva6 = ${itemCotacao.mva},
+		// 	deic01.formaPagamento = ${itemCotacao.formaPagamento},
+		// 	deic01.datlan6 = '${itemCotacao.data}',
+		// 	deic01.despesa6  = ${itemCotacao.frete}, deic01.icmsst6 = ${itemCotacao.st},
+		// 	deic01.icms6 = ${itemCotacao.icms}, deic01.ipi6 = ${itemCotacao.ipi}
+		// 	where deic01.forneced6 = '${codigoFornecedor}'
+		// 	and deic01.item6 = '${itemCotacao.item}'
+		// 	and dece01.item6 = '${itemCotacao.item}' and deic01.produto6 = '${itemCotacao.codigoInterno}' and dece01.produto6 = '${itemCotacao.codigoInterno}';`
+		// )
+
+
 		const result = await knex1.schema.raw(
-			`UPDATE deic01, dece01 SET deic01.custo6 = ${itemCotacao.valorProduto},
-			deic01.mva6 = ${itemCotacao.mva},
-			deic01.datlan6 = '${itemCotacao.data}',
-			deic01.despesa6  = ${itemCotacao.frete}, deic01.icmsst6 = ${itemCotacao.st},
-			deic01.icms6 = ${itemCotacao.icms}, deic01.ipi6 = ${itemCotacao.ipi}
-			where deic01.forneced6 = '${codigoFornecedor}'
-			and deic01.item6 = '${itemCotacao.item}'
-			and dece01.item6 = '${itemCotacao.item}' and deic01.produto6 = '${itemCotacao.codigoInterno}' and dece01.produto6 = '${itemCotacao.codigoInterno}';`
+			`select * from deic01;`
 		)
 
+		console.log(result)
 		if (result[0].affectedRows < 1) {
 			console.log(result[0].affectedRows)
 			return { status: HttpStatus.NO_CONTENT, msg: "Erro ao atualizar o item" }
