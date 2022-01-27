@@ -1,15 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { restaurar } from 'src/common/cripto';
 import { Empresa } from 'src/contrato/contrato.dto';
 import { CriptoService } from 'src/cripto/cripto.service';
 import { getOrCreateKnexInstance } from 'src/database/knexCache';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
-import { CotacaoTDOPayload } from 'src/models/types';
+import { CotacaoTDOPayload, DescontoTDO } from 'src/models/types';
 
 @Injectable()
-export class PriceService {
+export class DescontoService {
 	constructor(private readonly siteSuccessDatabase: SiteSuccessDatabaseService,
-		private readonly cripto: CriptoService,
+		private readonly cripto: CriptoService
 	) { }
 
 	async getDados() {
@@ -93,65 +93,27 @@ export class PriceService {
 	}
 
 
-	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string) {
+	async adicionarDesconto(descontoTDO: DescontoTDO) {
 
+		const knex1 = await this.getConexaoCliente(descontoTDO.dados.contratoEmpresa)
+		const empresa = await this.cripto.publicDecript(descontoTDO.dados.codigoEmpresa, "Success2021")
+		const fornecedor = await this.cripto.publicDecript(descontoTDO.dados.fornecedor, "Success2021")
 
-
-		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
-		const codigoFornecedor = await this.cripto.publicDecript(codFornecedor, "Success2021");
-
-		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
-
-		const knex = await this.getConexaoCliente(contrato)
-
-		// Aqui um exemplo de usar um objeto no select, acho que a sintaxe fica mais limpa
-		const result = await knex('deic01')
-			.leftJoin('dece01',
-				(k) => k.on('dece01.codigo6', 'deic01.codigo6').andOn('dece01.item6', 'deic01.item6')
-			)
-			.where('deic01.forneced6', codigoFornecedor)
-			.andWhere('deic01.codigo6', codigoCotacao)
-			.select(
-				{
-					//Aqui você termina de colocar as colunas que você quer, lembrando que como tem um join tem que incluir o nome da tabela antes
-					quantidade: 'dece01.qtd6',
-					marca: 'dece01.marca6',
-					descricao: 'dece01.descricao6',
-					data: 'deic01.data6',
-					codigo: 'deic01.codigo6',
-					item: 'deic01.item6',
-					produto: 'deic01.produto6',
-					valordoproduto: 'deic01.custo6',
-					frete: 'deic01.despesa6',
-					st: 'deic01.icmsst6',
-					icms: 'deic01.icms6',
-					ipi: 'deic01.ipi6',
-					mva: 'deic01.mva6',
-					codbarras: 'deic01.codfabric6'
-				}
-			).debug(true)
-
-
-		const array: Array<any> = result;
-		return [array];
-	}
-
-
-	async calcularTotal(cotacaoPayLoad: CotacaoTDOPayload) {
-
-		const codigoCotacao = await this.cripto.publicDecript(cotacaoPayLoad.codigo, "Success2021");
-		const codigoFornecedor = await this.cripto.publicDecript(cotacaoPayLoad.fornecedor, "Success2021");
-
-		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
-
-		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
-
-		const result = await knex.raw(
-			`select ifnull(sum(deic.custo6 * dece.qtd6 + ifnull(deic.despesa6, 0)), 0) as total  from dece01 as dece,
-			deic01 as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
-			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
-		);
-		return result[0];
+		const result = await knex1.schema.raw(
+			`update deic${empresa} as itens set desconto = itens.custo6 - (${descontoTDO.percentual} / 100 * itens.custo6)
+				where codigo6 = '${descontoTDO.item.codigo}'  and forneced6 = '${fornecedor}'; `
+		).debug(true).then(result => {
+			const affectedRows = result[0].affectedRows > 0;
+			if (affectedRows) {
+				return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true, totalCamposAtualizados: result[0].affectedRows }
+			} else {
+				return { statusCode: HttpStatus.BAD_REQUEST, message: `400 bad request `, success: false, totalCamposAtualizados: result[0].affectedRows }
+			}
+		}).catch(result => {
+			return { statusCode: HttpStatus.BAD_REQUEST, message: `400 bad request `, success: false, totalCamposAtualizados: result[0].affectedRows }
+		})
+		return result;
+		// const query = `update deic01 as itens set desconto = itens.custo6 - (5 / 100 * itens.custo6);`;
 	}
 
 }

@@ -1,3 +1,4 @@
+import { DescontoModule } from './desconto/desconto.module';
 import { UserModule } from './user/user.module';
 import { BancoModule } from './banco/banco.module';
 import { TotalModule } from './total/total.module';
@@ -20,6 +21,7 @@ import { FlagModule } from './Flags/flag.module';
 
 @Module({
   imports: [
+    DescontoModule,
     UserModule,
     BancoModule,
     TotalModule,

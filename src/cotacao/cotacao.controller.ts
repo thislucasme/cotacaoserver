@@ -129,8 +129,8 @@ export class CotacaoController {
 
 
 	@Get('chave')
-	async converter() {
-		return restaurar('DCB4C1B7B8C5D7B5B4C7BCC6C7B4D7B7B8D7C2BFBCC9B8BCC5B4D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7D7')
+	async converter(@Body() body: any) {
+		return restaurar(body.cifra)
 	}
 
 
