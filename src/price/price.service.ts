@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import e from 'express';
 import { restaurar } from 'src/common/cripto';
 import { Empresa } from 'src/contrato/contrato.dto';
 import { CriptoService } from 'src/cripto/cripto.service';
@@ -95,19 +96,18 @@ export class PriceService {
 
 	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string) {
 
-
-
 		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
 		const codigoFornecedor = await this.cripto.publicDecript(codFornecedor, "Success2021");
+		const empresa = await this.cripto.publicDecript(codigoEmpresa, "Success2021");
 
 		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
 
 		const knex = await this.getConexaoCliente(contrato)
 
 		// Aqui um exemplo de usar um objeto no select, acho que a sintaxe fica mais limpa
-		const result = await knex('deic01')
-			.leftJoin('dece01',
-				(k) => k.on('dece01.codigo6', 'deic01.codigo6').andOn('dece01.item6', 'deic01.item6')
+		const result = await knex('deic' + empresa)
+			.leftJoin('dece' + empresa,
+				(k) => k.on(`dece${empresa}.codigo6`, `deic${empresa}.codigo6`).andOn(`dece${empresa}.item6`, `deic${empresa}.item6`)
 			)
 			.where('deic01.forneced6', codigoFornecedor)
 			.andWhere('deic01.codigo6', codigoCotacao)
@@ -127,7 +127,8 @@ export class PriceService {
 					icms: 'deic01.icms6',
 					ipi: 'deic01.ipi6',
 					mva: 'deic01.mva6',
-					codbarras: 'deic01.codfabric6'
+					codbarras: 'deic01.codfabric6',
+					formapagamento: 'deic01.formaPagamento'
 				}
 			).debug(true)
 
@@ -148,6 +149,23 @@ export class PriceService {
 
 		const result = await knex.raw(
 			`select ifnull(sum(deic.custo6 * dece.qtd6 + ifnull(deic.despesa6, 0)), 0) as total  from dece01 as dece,
+			deic01 as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
+			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
+		);
+		return result[0];
+	}
+
+	async calcularTotalDesconto(cotacaoPayLoad: CotacaoTDOPayload) {
+
+		const codigoCotacao = await this.cripto.publicDecript(cotacaoPayLoad.codigo, "Success2021");
+		const codigoFornecedor = await this.cripto.publicDecript(cotacaoPayLoad.fornecedor, "Success2021");
+
+		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
+
+		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
+
+		const result = await knex.raw(
+			`select ifnull(sum(deic.desconto * dece.qtd6 + ifnull(deic.despesa6, 0)), 0) as totalDesconto  from dece01 as dece,
 			deic01 as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);

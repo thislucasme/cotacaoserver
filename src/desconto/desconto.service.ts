@@ -4,7 +4,7 @@ import { Empresa } from 'src/contrato/contrato.dto';
 import { CriptoService } from 'src/cripto/cripto.service';
 import { getOrCreateKnexInstance } from 'src/database/knexCache';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
-import { CotacaoTDOPayload, DescontoTDO } from 'src/models/types';
+import { DescontoTDO } from 'src/models/types';
 
 @Injectable()
 export class DescontoService {
@@ -98,10 +98,11 @@ export class DescontoService {
 		const knex1 = await this.getConexaoCliente(descontoTDO.dados.contratoEmpresa)
 		const empresa = await this.cripto.publicDecript(descontoTDO.dados.codigoEmpresa, "Success2021")
 		const fornecedor = await this.cripto.publicDecript(descontoTDO.dados.fornecedor, "Success2021")
+		const codigoCotacao = await this.cripto.publicDecript(descontoTDO.dados.codigo, "Success2021")
 
 		const result = await knex1.schema.raw(
 			`update deic${empresa} as itens set desconto = itens.custo6 - (${descontoTDO.percentual} / 100 * itens.custo6)
-				where codigo6 = '${descontoTDO.item.codigo}'  and forneced6 = '${fornecedor}'; `
+				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}'; `
 		).debug(true).then(result => {
 			const affectedRows = result[0].affectedRows > 0;
 			if (affectedRows) {
