@@ -21,6 +21,12 @@ export type DadosSuccess = {
 	numeroCotacao: string;
 
 }
+export type DescontoTDO = {
+	percentual: number;
+	dados: CotacaoTDOPayload
+	tipo: string;
+
+}
 export type ItemCotacaoTDO = {
 	contratoEmpresa: string;
 	codigo: string;
