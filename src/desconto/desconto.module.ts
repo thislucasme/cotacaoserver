@@ -8,10 +8,11 @@ import { SiteSuccessDatabaseService } from 'src/database/site-success-database.s
 import { SuccessDatabaseService } from 'src/database/success-database.service';
 import { DatabaseCotacaoService } from 'src/database/database-cotacao.service';
 import { CotacaoService } from 'src/cotacao/cotacao.service';
+import { PriceService } from 'src/price/price.service';
 
 @Module({
     imports: [CriptoModule],
     controllers: [DescontoController],
-    providers: [DescontoService, ClienteService, SiteSuccessDatabaseService, SuccessDatabaseService, DatabaseCotacaoService, CotacaoService, ContratoService],
+    providers: [DescontoService, PriceService, ClienteService, SiteSuccessDatabaseService, SuccessDatabaseService, DatabaseCotacaoService, CotacaoService, ContratoService],
 })
 export class DescontoModule { }
