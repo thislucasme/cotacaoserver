@@ -137,6 +137,24 @@ export class PriceService {
 		return [array];
 	}
 
+	async calcularFrete(cotacaoPayLoad: CotacaoTDOPayload) {
+
+		const codigoCotacao = await this.cripto.publicDecript(cotacaoPayLoad.codigo, "Success2021");
+		const codigoFornecedor = await this.cripto.publicDecript(cotacaoPayLoad.fornecedor, "Success2021");
+
+		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
+
+		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
+
+		const result = await knex.raw(
+			`select ifnull(sum(despesa6), 0) as totalFrete  from dece01 as dece,
+			deic01 as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
+			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
+		);
+		return result[0];
+
+	}
+
 
 	async calcularTotal(cotacaoPayLoad: CotacaoTDOPayload) {
 
@@ -165,7 +183,7 @@ export class PriceService {
 		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
 
 		const result = await knex.raw(
-			`select ifnull(sum(deic.desconto * dece.qtd6 + ifnull(deic.despesa6, 0)), 0) as totalDesconto  from dece01 as dece,
+			`select ifnull(sum(deic.desconto), 0) as totalDesconto  from dece01 as dece,
 			deic01 as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);

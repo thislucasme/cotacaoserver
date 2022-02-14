@@ -24,8 +24,9 @@ export class PriceController {
 
 
 		const total = await this.priceService.calcularTotal(body);
+		const frete = await this.priceService.calcularFrete(body);
 		const totalDesconto = await this.priceService.calcularTotalDesconto(body);
-		return [await this.priceService.getItensCotacao(codCotacao, codFornecedor, codContrato, codEmpresa), total, totalDesconto];
+		return [await this.priceService.getItensCotacao(codCotacao, codFornecedor, codContrato, codEmpresa), total, totalDesconto, frete];
 	}
 	@Post('update')
 	async updateItemCotacao(@Body() body: types.ItemCotacaoTDO) {
