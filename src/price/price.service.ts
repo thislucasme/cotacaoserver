@@ -130,7 +130,7 @@ export class PriceService {
 					codbarras: 'deic01.codfabric6',
 					formapagamento: 'deic01.formaPagamento'
 				}
-			).debug(true)
+			).debug(false)
 
 
 		const array: Array<any> = result;
@@ -187,7 +187,13 @@ export class PriceService {
 			deic01 as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);
+		this.arredondar();
 		return result[0];
+	}
+
+	arredondar() {
+		const total = 99.99999334;
+		console.log(total.toFixed(2))
 	}
 
 }
