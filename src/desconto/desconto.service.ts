@@ -106,6 +106,7 @@ export class DescontoService {
 		const fornecedor = await this.cripto.publicDecript(descontoTDO.dados.fornecedor, "Success2021")
 		const codigoCotacao = await this.cripto.publicDecript(descontoTDO.dados.codigo, "Success2021")
 
+
 		const result = await this.priceService.calcularTotal(descontoTDO.dados);
 		const valorOriginal = result[0].total;
 		const percentual = descontoTDO.percentual / 100;
@@ -115,7 +116,7 @@ export class DescontoService {
 		let totalParaCadaItem = 0;
 		let frete = descontoTDO.frete / totalItens[0][0].total;
 
-		let descontoArray: number[] = [];
+		let freteArray: number[] = [];
 
 		//ajustar desconto
 		let format1 = Number.parseFloat(abnt.arredonda(frete));
@@ -129,21 +130,26 @@ export class DescontoService {
 
 		for (let i = 0; i < totalItens[0][0].total; i++) {
 			if (i === totalItens[0][0].total - 1) {
-				descontoArray.push(format1 - diferencaDuasCasas);
+				var soma = freteArray.reduce(function (soma, i) {
+					return soma + i;
+				});
+
+				let difBeetween = descontoTDO.frete - soma;
+				freteArray.push(abnt.arredonda(difBeetween));
 			} else {
-				descontoArray.push(format1);
+				freteArray.push(format1);
 
 			}
 
 		}
 
-		console.log(descontoArray);
-		var soma = descontoArray.reduce(function (soma, i) {
+		console.log(freteArray);
+		var soma = freteArray.reduce(function (soma, i) {
 			return soma + i;
 		});
 
 
-		console.log(abnt.arredonda(soma))
+		console.log("soma:", abnt.arredonda(soma))
 
 
 
@@ -152,21 +158,15 @@ export class DescontoService {
 		} else {
 			totalParaCadaItem = descontoTDO.percentual / totalItens[0][0].total;
 		}
-		const response = await knex1.schema.raw(
-			`update deic${empresa} as itens set desconto = ${totalParaCadaItem},
-			despesa6 = ${frete}
+
+		for (let i = 0; i < totalItens[0][0].total; i++) {
+			const response = await knex1.schema.raw(
+				`update deic${empresa} as itens set desconto = ${totalParaCadaItem},
+			despesa6 = ${freteArray[i]}
 				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}'; `
-		).then(result => {
-			const affectedRows = result[0].affectedRows > 0;
-			if (affectedRows) {
-				return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true, totalCamposAtualizados: result[0].affectedRows }
-			} else {
-				return { statusCode: HttpStatus.BAD_REQUEST, message: `400 bad request `, success: false, totalCamposAtualizados: result[0].affectedRows }
-			}
-		}).catch(error => {
-			return { statusCode: HttpStatus.BAD_REQUEST, message: `400 bad request `, success: false, totalCamposAtualizados: result[0].affectedRows }
-		});
-		return response;
+			);
+		}
+		return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true, totalCamposAtualizados: result[0].affectedRows }
 	}
 
 	ajustarDesconto() {
