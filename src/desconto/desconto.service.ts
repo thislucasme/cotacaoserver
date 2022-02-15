@@ -115,14 +115,36 @@ export class DescontoService {
 		let totalParaCadaItem = 0;
 		let frete = descontoTDO.frete / totalItens[0][0].total;
 
+		let descontoArray: number[] = [];
+
 		//ajustar desconto
 		let format1 = Number.parseFloat(abnt.arredonda(frete));
 		let totalDesconto = format1 * totalItens[0][0].total;
 		let diferenca = totalDesconto - descontoTDO.percentual;
-		console.log("diferença em si:", diferenca)
-		console.log('total desconto', totalDesconto, "diferença:", diferenca)
+		//console.log("diferença em si:", diferenca)
+		//console.log('total desconto', totalDesconto, "diferença:", diferenca)
 		let diferencaDuasCasas = Number.parseFloat(abnt.arredonda(diferenca));
-		console.log("correção:", abnt.arredonda(totalDesconto) - diferencaDuasCasas)
+		//console.log("correção:", abnt.arredonda(totalDesconto) - diferencaDuasCasas)
+
+
+		for (let i = 0; i < totalItens[0][0].total; i++) {
+			if (i === totalItens[0][0].total - 1) {
+				descontoArray.push(format1 - diferencaDuasCasas);
+			} else {
+				descontoArray.push(format1);
+
+			}
+
+		}
+
+		console.log(descontoArray);
+		var soma = descontoArray.reduce(function (soma, i) {
+			return soma + i;
+		});
+
+
+		console.log(abnt.arredonda(soma))
+
 
 
 		if (descontoTDO.tipo === 'P') {
