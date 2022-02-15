@@ -121,7 +121,8 @@ export class DescontoService {
 		let diferenca = totalDesconto - descontoTDO.percentual;
 		console.log("diferença em si:", diferenca)
 		console.log('total desconto', totalDesconto, "diferença:", diferenca)
-		console.log("correção:", totalDesconto - diferenca)
+		let diferencaDuasCasas = Number.parseFloat(abnt.arredonda(diferenca));
+		console.log("correção:", abnt.arredonda(totalDesconto) - diferencaDuasCasas)
 
 
 		if (descontoTDO.tipo === 'P') {
