@@ -30,6 +30,7 @@
     "@nestjs/passport": "^8.0.1",
     "@nestjs/platform-express": "^8.0.0",
     "@types/express-xml-bodyparser": "^0.3.2",
+    "arredondamentoabnt": "^2.0.1",
     "base-64": "^1.0.0",
     "express-xml-bodyparser": "^0.3.0",
     "http-status-codes": "^2.1.4",

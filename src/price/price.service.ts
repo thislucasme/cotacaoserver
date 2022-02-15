@@ -6,7 +6,8 @@ import { CriptoService } from 'src/cripto/cripto.service';
 import { getOrCreateKnexInstance } from 'src/database/knexCache';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
 import { CotacaoTDOPayload } from 'src/models/types';
-
+const ABNT_5891_1977 = require('arredondamentoabnt').ABNT_5891_1977
+const abnt = new ABNT_5891_1977(2);
 @Injectable()
 export class PriceService {
 	constructor(private readonly siteSuccessDatabase: SiteSuccessDatabaseService,
@@ -192,8 +193,25 @@ export class PriceService {
 	}
 
 	arredondar() {
-		const total = 99.99999334;
-		console.log(total.toFixed(2))
+		let numero1 = 4.303;
+		let numero2 = 15.4875;
+		let numero3 = 25.7750;
+		let numero4 = 31.7250;
+
+		let divisaoFrete = 1.0769230769230769;
+
+		let format1 = Number.parseFloat(abnt.arredonda(numero1));
+		let format2 = Number.parseFloat(abnt.arredonda(numero2));
+		let format3 = Number.parseFloat(abnt.arredonda(numero3));
+		let format4 = Number.parseFloat(abnt.arredonda(numero4));
+		let format5 = Number.parseFloat(abnt.arredonda(divisaoFrete.toFixed(2)));
+
+		console.log(numero1, " ==> ", format1)
+		console.log(numero2, " ==> ", format2)
+		console.log(numero3, " ==> ", format3)
+		console.log(numero4, " ==> ", format4)
+		console.log(divisaoFrete, " ==> ", format5)
+
 	}
 
 }

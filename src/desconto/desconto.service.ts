@@ -7,6 +7,10 @@ import { SiteSuccessDatabaseService } from 'src/database/site-success-database.s
 import { DescontoTDO } from 'src/models/types';
 import { PriceService } from 'src/price/price.service';
 
+const ABNT_5891_1977 = require('arredondamentoabnt').ABNT_5891_1977
+const abnt = new ABNT_5891_1977(2);
+
+
 @Injectable()
 export class DescontoService {
 	constructor(private readonly siteSuccessDatabase: SiteSuccessDatabaseService,
@@ -111,6 +115,15 @@ export class DescontoService {
 		let totalParaCadaItem = 0;
 		let frete = descontoTDO.frete / totalItens[0][0].total;
 
+		//ajustar desconto
+		let format1 = Number.parseFloat(abnt.arredonda(frete));
+		let totalDesconto = format1 * totalItens[0][0].total;
+		let diferenca = totalDesconto - descontoTDO.percentual;
+		console.log("diferença em si:", diferenca)
+		console.log('total desconto', totalDesconto, "diferença:", diferenca)
+		console.log("correção:", totalDesconto - diferenca)
+
+
 		if (descontoTDO.tipo === 'P') {
 			totalParaCadaItem = valorAserDiminuido / totalItens[0][0].total;
 		} else {
@@ -131,5 +144,9 @@ export class DescontoService {
 			return { statusCode: HttpStatus.BAD_REQUEST, message: `400 bad request `, success: false, totalCamposAtualizados: result[0].affectedRows }
 		});
 		return response;
+	}
+
+	ajustarDesconto() {
+
 	}
 }
