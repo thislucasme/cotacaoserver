@@ -16,6 +16,9 @@ export class FlagService {
 		const codigo = await this.criptoService.publicDecript(cotacaoPayload.codigo, "Success2021");
 		const fornecedor = await this.criptoService.publicDecript(cotacaoPayload.fornecedor, "Success2021");
 
+
+		console.log("===========CÓDIGO========", cotacaoPayload.codigoEmpresa)
+
 		const result = await dadosEmpresa.raw(
 			`select dece.codigo6, dece.item6, deic.fornvenc6  from dece01 as dece,
 			deic01 as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6
