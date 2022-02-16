@@ -384,5 +384,8 @@ export class CotacaoService {
 		return payloadEnvioEmail;
 	}
 
+	async isAllPreenchido(body: CotacaoTDOPayload) {
+
+	}
 
 }
