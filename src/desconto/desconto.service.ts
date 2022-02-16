@@ -77,10 +77,10 @@ export class DescontoService {
 		return knex
 	}
 
-	async getEmpresas(contrato: string) {
+	async getEmpresas(contrato: string, codigoEmpresa: string) {
 		const knex = await this.getConexaoCliente(contrato)
 
-		const empresas = await knex('pe01').select([
+		const empresas = await knex('pe' + codigoEmpresa).select([
 			'codigo',
 			'razao',
 			'empresa',
@@ -135,7 +135,6 @@ export class DescontoService {
 				});
 
 				let difBeetween = descontoTDO.frete - soma;
-				console.log("diferença ===>", difBeetween, "soma ===>", soma)
 				freteArray.push(abnt.arredonda(difBeetween));
 			} else {
 				freteArray.push(format1);

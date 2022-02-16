@@ -7,11 +7,6 @@ import { CotacaoService } from './cotacao.service';
 @Controller("cotacao")
 export class CotacaoController {
 	constructor(private cotacaoService: CotacaoService) { }
-	@Get('all')
-	async buscar() {
-		const result = await this.cotacaoService.buscarCotacoes('AG000002');
-		return result;
-	}
 
 	//const result = await this.cotacaoService.getItensCotacao('0000000001', 'AG000002');
 	@Get('teste/:codCotacao/:codFornecedor/:contratoEmpresa/:codigoEmpresa')
@@ -31,29 +26,10 @@ export class CotacaoController {
 		return [total];
 	}
 
-	@Get('buscar/:codCotacao/:codFornecedor/:codEmpresa')
-	async get(@Param('codCotacao') codCotacao: string, @Param('codFornecedor') codFornecedor: string, @Param('codEmpresa') codEmpresa: string) {
-		//const result = await this.cotacaoService.getItensCotacao(codCotacao, codFornecedor);
-
-		const body: CotacaoTDOPayload = {
-			codigo: codCotacao,
-			fornecedor: codFornecedor,
-			flag: '',
-			contratoEmpresa: codEmpresa,
-			codigoEmpresa: ''
-		}
-
-		console.log(body, "lucas")
-
-		const result = await this.cotacaoService.getItensCotacao(body.codigo, body.fornecedor, "000001650", "01");
-
-		//return [result, total];
-		return [result];
-	}
 	@Get('empresa/:codigo')
 	async getEmpresa(@Param('codigo') codigo: string) {
-		const result = await this.cotacaoService.getEmpresaByCodigo(codigo);
-		return result;
+		//const result = await this.cotacaoService.getEmpresaByCodigo(codigo);
+		//return result;
 	}
 
 	@Get('enviar-email')
@@ -99,12 +75,13 @@ export class CotacaoController {
 	}
 	@Post('update-flag-fornecedor')
 	async updateFlag(@Body() body: CotacaoTDOPayload, @Res() res: Response) {
-		const result = await this.cotacaoService.atualizarFlagVendedor(body);
+		return body;
+		// const result = await this.cotacaoService.atualizarFlagVendedor(body);
 
-		if (result === null) {
-			res.status(HttpStatus.OK).send({ data: 404 });
-		}
-		res.status(HttpStatus.OK).send({ data: 201 });
+		// if (result === null) {
+		// 	res.status(HttpStatus.OK).send({ data: 404 });
+		// }
+		//	res.status(HttpStatus.OK).send({ data: 201 });
 	}
 	@Post('update-flag-fornecedor-teste')
 	async updateFlagTest(@Body() body: CotacaoTDOPayload, @Res() res: Response) {

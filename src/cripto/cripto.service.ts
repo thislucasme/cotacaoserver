@@ -29,7 +29,6 @@ export class CriptoService {
       `${criptLinuxExe} ${cifra} ${chave}`
     )
     if (stderr) {
-      console.log(`erro: ${stderr.toString()}`)
     }
     return this.stripAnsi(stdout)
   }
@@ -39,7 +38,6 @@ export class CriptoService {
       `${decriptLinuxExe} ${cifra} ${chave}`
     )
     if (stderr) {
-      console.log(`erro: ${stderr.toString()}`)
     }
     return this.stripAnsi(stdout)
   }

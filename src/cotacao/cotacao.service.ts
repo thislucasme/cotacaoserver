@@ -16,58 +16,9 @@ import { getOrCreateKnexInstance } from 'src/database/knexCache';
 export class CotacaoService {
 	constructor(private readonly mailer: MailerService, private cotacaoDatabaseService: DatabaseCotacaoService, private contratoService: ContratoService, private criptoService: CriptoService) { }
 
-	async buscarCotacoes(codFornecedor: string) {
+	async getEmpresaByCodigo(codigo: string, codigoEmpresa: string): Promise<Empresa | null> {
 		const knex = this.cotacaoDatabaseService.getConnection();
-		const result = knex('deic01').select([
-			'codigo6 as codigo',
-		])
-			.where('deic01.forneced6', codFornecedor)
-			.distinct('codigo6').debug(true)
-		return result;
-
-	}
-	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string) {
-
-		const codigoCotacao = await this.criptoService.publicDecript(codCotacao, "Success2021");
-		const codigoFornecedor = await this.criptoService.publicDecript(codFornecedor, "Success2021");
-
-		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
-
-		const knex = await this.contratoService.getConexaoCliente('1EDFFA7D75A6')
-
-		// Aqui um exemplo de usar um objeto no select, acho que a sintaxe fica mais limpa
-		const result = knex('deic01')
-			.leftJoin('dece01',
-				(k) => k.on('dece01.codigo6', 'deic01.codigo6').andOn('dece01.item6', 'deic01.item6')
-			)
-			.where('deic01.forneced6', codigoFornecedor)
-			.andWhere('deic01.codigo6', codigoCotacao)
-			.select(
-				{
-					//Aqui você termina de colocar as colunas que você quer, lembrando que como tem um join tem que incluir o nome da tabela antes
-					quantidade: 'dece01.qtd6',
-					marca: 'dece01.marca6',
-					descricao: 'dece01.descricao6',
-					data: 'deic01.data6',
-					codigo: 'deic01.codigo6',
-					item: 'deic01.item6',
-					produto: 'deic01.produto6',
-					valordoproduto: 'deic01.custo6',
-					frete: 'deic01.despesa6',
-					st: 'deic01.icmsst6',
-					icms: 'deic01.icms6',
-					ipi: 'deic01.ipi6',
-					mva: 'deic01.mva6',
-					codbarras: 'deic01.codfabric6'
-				}
-			)
-		return result;
-	}
-
-
-	async getEmpresaByCodigo(codigo: string): Promise<Empresa | null> {
-		const knex = this.cotacaoDatabaseService.getConnection();
-		const result = await knex('pe01').select({
+		const result = await knex('pe' + codigoEmpresa).select({
 			codigo: 'codigo',
 			razao: 'razao',
 			empresa: 'empresa',
@@ -90,33 +41,29 @@ export class CotacaoService {
 	async updateItemCotacao(itemCotacao: ItemCotacaoTDO) {
 
 		const codigoFornecedor = await this.criptoService.publicDecript(itemCotacao.fornecedor, "Success2021");
-
+		const empresa = await this.criptoService.publicDecript(itemCotacao.codigoEmpresa, "Success2021");
 		//const knex = await this.contratoService.getConexaoClienteCache('1EDFFA7D75A6');
 		const knex1 = await this.contratoService.getConexaoCliente(itemCotacao.contratoEmpresa);
+
 
 		//const result = knex1.schema.raw('select * from dece01');
 		//return result;
 
 		const result = await knex1.schema.raw(
-			`UPDATE deic01, dece01 SET deic01.custo6 = ${itemCotacao.valorProduto},
-			deic01.mva6 = ${itemCotacao.mva},
-			deic01.formaPagamento = '${itemCotacao.formaPagamento}',
-			deic01.datlan6 = '${itemCotacao.data}',
-			deic01.despesa6  = ${itemCotacao.frete}, deic01.icmsst6 = ${itemCotacao.st},
-			deic01.icms6 = ${itemCotacao.icms}, deic01.ipi6 = ${itemCotacao.ipi}
-			where deic01.forneced6 = '${codigoFornecedor}'
-			and deic01.item6 = '${itemCotacao.item}'
-			and dece01.item6 = '${itemCotacao.item}' and deic01.produto6 = '${itemCotacao.codigoInterno}' and dece01.produto6 = '${itemCotacao.codigoInterno}';`
+			`UPDATE deic${empresa}, dece01 SET deic${empresa}.custo6 = ${itemCotacao.valorProduto},
+			deic${empresa}.mva6 = ${itemCotacao.mva},
+			deic${empresa}.formaPagamento = '${itemCotacao.formaPagamento}',
+			deic${empresa}.datlan6 = '${itemCotacao.data}',
+			deic${empresa}.despesa6  = ${itemCotacao.frete}, deic${empresa}.icmsst6 = ${itemCotacao.st},
+			deic${empresa}.icms6 = ${itemCotacao.icms}, deic${empresa}.ipi6 = ${itemCotacao.ipi}
+			where deic${empresa}.forneced6 = '${codigoFornecedor}'
+			and deic${empresa}.item6 = '${itemCotacao.item}'
+			and dece${empresa}.item6 = '${itemCotacao.item}' and deic${empresa}.produto6 = '${itemCotacao.codigoInterno}' and dece${empresa}.produto6 = '${itemCotacao.codigoInterno}';`
 		)
 
 
-		// const result = await knex1.schema.raw(
-		// 	`select * from deic01;`
-		// )
 
-		console.log(result)
 		if (result[0].affectedRows < 1) {
-			console.log(result[0].affectedRows)
 			return { status: HttpStatus.NO_CONTENT, msg: "Erro ao atualizar o item" }
 		}
 		return { status: HttpStatus.CREATED, msg: "item atualizado com sucesso!" };
@@ -167,11 +114,9 @@ export class CotacaoService {
 			if (result[0].affectedRows == 0) {
 				return { data: null, code: 404 };
 			}
-			console.log("Sucesso ao salvar")
 			return result;
 
 		} catch (e) {
-			console.log("Ocorreu um erro")
 			return { data: null, code: 400 };
 		}
 
@@ -181,6 +126,8 @@ export class CotacaoService {
 		const knex = this.cotacaoDatabaseService.getConnection();
 		//'AG000002'
 		//'0000000001'
+
+		console.log("CÓDIGO EMPRESA", cotacaoTDOPayload.codigoEmpresa)
 		const result = await knex.raw(
 			`update deic01, dece01 set dece01.flag6 = '${cotacaoTDOPayload.flag}',
 			dece01.melcot16 = '${cotacaoTDOPayload.fornecedor}'
@@ -247,7 +194,6 @@ export class CotacaoService {
 	async enviarEmailParaFornecedores(dados: PayloadSuccess) {
 		//buscar conexão, se conectar a ela
 		const result = await this.contratoService.getDadosConexao(dados.empresa.contratoEmpresaSuccess);
-		console.log("aqui")
 		if (result.servidor === null) {
 			const payloadEnvioEmail: PayloadEnvioEmail = {
 				empresa: {
@@ -277,9 +223,8 @@ export class CotacaoService {
 		const cotacao = await knex.raw(`select codigo6 as codigo from dece${codigoEmpresaDescriptografado} where codigo6 =  '${codigoCotacaoDescriptografado}' and sr_deleted != 'T' limit 1;`);
 		const snapshot = cotacao[0][0];
 		if (snapshot) {
-			console.log("Existe")
+
 		} else {
-			console.log("Não existe")
 			const payloadEnvioEmail: PayloadEnvioEmail = {
 				empresa: {
 					contratoEmpresaSuccess: null,
@@ -290,7 +235,6 @@ export class CotacaoService {
 			}
 			return payloadEnvioEmail
 		}
-		console.log(cotacao[0][0], "cotação");
 		const stringFornecedoresCriptografados: string[] = dados.fornecedores.cnpjFornecedor.split(' ');
 
 		const payloadEnvioEmail: PayloadEnvioEmail = {
@@ -307,11 +251,9 @@ export class CotacaoService {
 		// const fornecedores = cnpjs.split(' ');
 
 		// const emails = [];
-		console.log(stringFornecedoresCriptografados)
 		for (const cnpj of stringFornecedoresCriptografados) {
 			const raw = await knex.raw(`select hex(cgc2) as cnpj, nome2 as nome, email2 as email, codigo2 as codigoFornecedor from da02 where hex(cgc2) = '${cnpj}' limit 1`);
 			const snapshot = raw[0][0];
-			console.log("query", snapshot)
 			const fornecedor: FornecedorData = {
 				cnpj: cnpj,
 				email: snapshot?.email ? snapshot?.email : null,
@@ -343,7 +285,6 @@ export class CotacaoService {
 				cidade: empresaDB.cidade
 			}
 		} catch (e) {
-			console.log("Ocorreu um erro")
 		}
 
 
@@ -358,7 +299,7 @@ export class CotacaoService {
 				const numeroCotacao = (dados.empresa.numeroCotacao + encode('-success'));
 				const cnpjFornecedor = (payloadEnvioEmail.fornecedores[i].cnpj) + encode('-success');
 				const codFornecedor = await this.criptoService.publicEncript((payloadEnvioEmail.fornecedores[i].codigoFornecedor), "Success2021")
-				console.log(codFornecedor)
+
 				const fullUrl = contratoEmpresa + numeroEmpresa + numeroCotacao + cnpjFornecedor + codFornecedor;
 
 				const prefixUrl = 'http://localhost:3005/painel/cotacao/' + fullUrl;
@@ -375,7 +316,6 @@ export class CotacaoService {
 					nome: ''
 				}
 				payloadEnvioEmail.fornecedores[i] = fornecedor;
-				console.log("enviado")
 			}
 		}
 

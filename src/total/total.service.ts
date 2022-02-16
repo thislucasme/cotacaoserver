@@ -11,23 +11,6 @@ export class TotalService {
 
 	constructor(private cripto: CriptoService, private siteSuccessDatabase: SiteSuccessDatabaseService) { }
 
-	async calcularTotal(cotacaoPayLoad: CotacaoTDOPayload) {
-
-		const codigoCotacao = await this.cripto.publicDecript(cotacaoPayLoad.codigo, "Success2021");
-		const codigoFornecedor = await this.cripto.publicDecript(cotacaoPayLoad.fornecedor, "Success2021");
-
-		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
-
-		const knex = await this.getConexaoCliente('1EDFFA7D75A6')
-
-		const result = await knex.raw(
-			`select ifnull(sum(deic.custo6 * dece.qtd6 + deic.despesa6), 0) as total  from dece01 as dece,
-			deic01 as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
-			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
-		);
-		return result[0];
-	}
-
 	async getDados() {
 		const knex = await this.siteSuccessDatabase.getConnection();
 		const registro = await knex('cfgw').select();
@@ -87,10 +70,10 @@ export class TotalService {
 		return knex
 	}
 
-	async getEmpresas(contrato: string) {
+	async getEmpresas(contrato: string, codigoEmpresa: string) {
 		const knex = await this.getConexaoCliente(contrato)
 
-		const empresas = await knex('pe01').select([
+		const empresas = await knex('pe' + codigoEmpresa).select([
 			'codigo',
 			'razao',
 			'empresa',

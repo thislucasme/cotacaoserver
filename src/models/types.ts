@@ -29,6 +29,7 @@ export type DescontoTDO = {
 
 }
 export type ItemCotacaoTDO = {
+	codigoEmpresa: string;
 	contratoEmpresa: string;
 	codigo: string;
 	item: string;
