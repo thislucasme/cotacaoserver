@@ -159,7 +159,7 @@ export class PriceService {
 	}
 
 
-	async calcularTotal(cotacaoPayLoad: CotacaoTDOPayload) {
+	async calcularTotal(cotacaoPayLoad: CotacaoTDOPayload, buscarIds: boolean) {
 
 		const codigoCotacao = await this.cripto.publicDecript(cotacaoPayLoad.codigo, "Success2021");
 		const codigoFornecedor = await this.cripto.publicDecript(cotacaoPayLoad.fornecedor, "Success2021");
@@ -174,7 +174,17 @@ export class PriceService {
 			deic${empresa} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);
-		return result[0];
+
+		if (buscarIds) {
+			const ids = await knex.raw(
+				`select deic.item6  from dece${empresa} as dece,
+			deic${empresa} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
+			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
+			);
+			return [result[0][0], ids[0][0]];
+		} else {
+			return [result[0][0]];
+		}
 	}
 
 	async calcularTotalDesconto(cotacaoPayLoad: CotacaoTDOPayload) {

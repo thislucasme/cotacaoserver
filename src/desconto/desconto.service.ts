@@ -4,8 +4,9 @@ import { Empresa } from 'src/contrato/contrato.dto';
 import { CriptoService } from 'src/cripto/cripto.service';
 import { getOrCreateKnexInstance } from 'src/database/knexCache';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
-import { DescontoTDO } from 'src/models/types';
+import { DescontoTDO, GeneratedData, GenerateIdDataByArray } from 'src/models/types';
 import { PriceService } from 'src/price/price.service';
+import { UtilService } from './util.service';
 
 const ABNT_5891_1977 = require('arredondamentoabnt').ABNT_5891_1977
 const abnt = new ABNT_5891_1977(2);
@@ -15,7 +16,8 @@ const abnt = new ABNT_5891_1977(2);
 export class DescontoService {
 	constructor(private readonly siteSuccessDatabase: SiteSuccessDatabaseService,
 		private readonly cripto: CriptoService,
-		private priceService: PriceService
+		private priceService: PriceService,
+		private utilService: UtilService
 	) { }
 
 	async getDados() {
@@ -107,69 +109,39 @@ export class DescontoService {
 		const codigoCotacao = await this.cripto.publicDecript(descontoTDO.dados.codigo, "Success2021")
 
 
-		const result = await this.priceService.calcularTotal(descontoTDO.dados);
-		const valorOriginal = result[0].total;
-		const percentual = descontoTDO.percentual / 100;
-		const valorAserDiminuido = (percentual * valorOriginal);
 		const totalItens = await knex1.schema.raw(`select count(item6) as total from deic${empresa} where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}';`);
+		const ids = await knex1.schema.raw(`select item6 from deic${empresa} where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}';`);
+		// console.log(ids[0])
 
-		let totalParaCadaItem = 0;
-		let frete = descontoTDO.frete / totalItens[0][0].total;
+		const arrayGenerated: GeneratedData = await this.utilService.generateArrayOfValues(descontoTDO, totalItens);
+		const arrayGeneratedDesconto = await this.utilService.generateArrayOfValuesDesconto(descontoTDO, totalItens);
+		const arrayIdGenerated: GenerateIdDataByArray = await this.utilService.generateIdDataByArray(ids);
 
-		let freteArray: number[] = [];
-
-		//ajustar desconto
-		let format1 = Number.parseFloat(abnt.arredonda(frete));
-		let totalDesconto = format1 * totalItens[0][0].total;
-		let diferenca = totalDesconto - descontoTDO.percentual;
-		//console.log("diferença em si:", diferenca)
-		//console.log('total desconto', totalDesconto, "diferença:", diferenca)
-		let diferencaDuasCasas = Number.parseFloat(abnt.arredonda(diferenca));
-		//console.log("correção:", abnt.arredonda(totalDesconto) - diferencaDuasCasas)
+		console.log(arrayGeneratedDesconto)
 
 
-		for (let i = 0; i < totalItens[0][0].total; i++) {
-			if (i === totalItens[0][0].total - 1) {
-				var soma = freteArray.reduce(function (soma, i) {
-					return soma + i;
-				});
+		// if (descontoTDO.tipo === 'P') {
+		// 	totalParaCadaItem = valorAserDiminuido / totalItens[0][0].total;
+		// } else {
+		// 	totalParaCadaItem = descontoTDO.percentual / totalItens[0][0].total;
+		// }
 
-				let difBeetween = descontoTDO.frete - soma;
-				freteArray.push(Number.parseFloat(abnt.arredonda(difBeetween)));
-			} else {
-				freteArray.push(format1);
+		//console.log(arrayGenerated)
 
-			}
+		const frete = await knex1.schema.raw(
+			`update deic${empresa} as itens set desconto = ${arrayGeneratedDesconto.first},
+			despesa6 = ${arrayGenerated.first}
+				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}' and item6 != ${arrayIdGenerated.last}; `
+		);
 
-		}
+		const desconto = await knex1.schema.raw(
+			`update deic${empresa} as itens set desconto = ${arrayGeneratedDesconto.last},
+			despesa6 = ${arrayGenerated.last}
+				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}' and item6 = ${arrayIdGenerated.last}; `
+		).debug(false);
 
-		console.log(freteArray);
-		var soma = freteArray.reduce(function (soma, i) {
-			return soma + i;
-		});
-
-		try {
-
-			const numeroArredondado = abnt.arredonda(soma);
-			console.log("soma:", Number.parseFloat(abnt.arredonda(numeroArredondado)))
-		} catch (e) {
-			console.log("Ocorreu um erro ao arredondar o numero: ", e.message)
-		}
-
-		if (descontoTDO.tipo === 'P') {
-			totalParaCadaItem = valorAserDiminuido / totalItens[0][0].total;
-		} else {
-			totalParaCadaItem = descontoTDO.percentual / totalItens[0][0].total;
-		}
-
-		for (let i = 0; i < totalItens[0][0].total; i++) {
-			const response = await knex1.schema.raw(
-				`update deic${empresa} as itens set desconto = ${totalParaCadaItem},
-			despesa6 = ${freteArray[i]}
-				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}'; `
-			);
-		}
-		return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true, totalCamposAtualizados: result[0].affectedRows }
+		// return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true, totalCamposAtualizados: result[0].affectedRows }
+		return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true }
 	}
 
 	ajustarDesconto() {

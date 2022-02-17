@@ -24,7 +24,7 @@ export class PriceController {
 		}
 
 
-		const total = await this.priceService.calcularTotal(body);
+		const total = await this.priceService.calcularTotal(body, false);
 		const frete = await this.priceService.calcularFrete(body);
 		const data = await this.priceService.getItensCotacao(codCotacao, codFornecedor, codContrato, codEmpresa)
 		const totalDesconto = await this.priceService.calcularTotalDesconto(body);

@@ -87,6 +87,7 @@ export type PayloadEnvioEmail = {
 }
 
 export type PayloadSuccess = {
+
 	empresa: {
 		contratoEmpresaSuccess: string;
 		numeroCotacao: string;
@@ -95,4 +96,14 @@ export type PayloadSuccess = {
 	fornecedores: {
 		cnpjFornecedor: string;
 	}
+}
+export type GeneratedData = {
+	array: number[];
+	soma: number;
+	first: number;
+	last: number;
+}
+export type GenerateIdDataByArray = {
+	array: number[];
+	last: string;
 }
