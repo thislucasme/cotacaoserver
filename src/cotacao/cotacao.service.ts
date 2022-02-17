@@ -46,11 +46,9 @@ export class CotacaoService {
 		const knex1 = await this.contratoService.getConexaoCliente(itemCotacao.contratoEmpresa);
 
 
-		//const result = knex1.schema.raw('select * from dece01');
-		//return result;
 
 		const result = await knex1.schema.raw(
-			`UPDATE deic${empresa}, dece01 SET deic${empresa}.custo6 = ${itemCotacao.valorProduto},
+			`UPDATE deic${empresa}, dece${empresa} SET deic${empresa}.custo6 = ${itemCotacao.valorProduto},
 			deic${empresa}.mva6 = ${itemCotacao.mva},
 			deic${empresa}.formaPagamento = '${itemCotacao.formaPagamento}',
 			deic${empresa}.datlan6 = '${itemCotacao.data}',

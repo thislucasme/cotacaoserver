@@ -135,7 +135,7 @@ export class DescontoService {
 				});
 
 				let difBeetween = descontoTDO.frete - soma;
-				freteArray.push(abnt.arredonda(difBeetween));
+				freteArray.push(Number.parseFloat(abnt.arredonda(difBeetween)));
 			} else {
 				freteArray.push(format1);
 
@@ -148,10 +148,13 @@ export class DescontoService {
 			return soma + i;
 		});
 
+		try {
 
-		console.log("soma:", abnt.arredonda(soma))
-
-
+			const numeroArredondado = abnt.arredonda(soma);
+			console.log("soma:", Number.parseFloat(abnt.arredonda(numeroArredondado)))
+		} catch (e) {
+			console.log("Ocorreu um erro ao arredondar o numero: ", e.message)
+		}
 
 		if (descontoTDO.tipo === 'P') {
 			totalParaCadaItem = valorAserDiminuido / totalItens[0][0].total;
