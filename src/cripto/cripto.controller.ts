@@ -17,7 +17,6 @@ export class CriptoController {
   }
   @Post('encrypt')
   async encriptarUm(@Body() body: criptoUmDto) {
-    console.log(body)
     const { cifra, chave } = body
     const encoded = await this.cripto.publicEncript(cifra, chave)
     return encoded

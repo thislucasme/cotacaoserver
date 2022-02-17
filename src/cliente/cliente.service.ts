@@ -94,41 +94,4 @@ export class ClienteService {
 
 		return parsedEmpresas
 	}
-
-
-	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string) {
-
-		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
-		const codigoFornecedor = await this.cripto.publicDecript(codFornecedor, "Success2021");
-
-		const knex = await this.getConexaoCliente(contrato)
-
-		const result = await knex('deic01')
-			.leftJoin('dece01',
-				(k) => k.on('dece01.codigo6', 'deic01.codigo6').andOn('dece01.item6', 'deic01.item6')
-			)
-			.where('deic01.forneced6', codigoFornecedor)
-			.andWhere('deic01.codigo6', codigoCotacao)
-			.select(
-				{
-					//Aqui você termina de colocar as colunas que você quer, lembrando que como tem um join tem que incluir o nome da tabela antes
-					quantidade: 'dece01.qtd6',
-					marca: 'dece01.marca6',
-					descricao: 'dece01.descricao6',
-					data: 'deic01.data6',
-					codigo: 'deic01.codigo6',
-					item: 'deic01.item6',
-					produto: 'deic01.produto6',
-					valordoproduto: 'deic01.custo6',
-					frete: 'deic01.despesa6',
-					st: 'deic01.icmsst6',
-					icms: 'deic01.icms6',
-					ipi: 'deic01.ipi6',
-					mva: 'deic01.mva6',
-					codbarras: 'deic01.codfabric6'
-				}
-			)
-		const array: Array<any> = result;
-		return [array];
-	}
 }

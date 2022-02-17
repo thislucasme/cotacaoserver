@@ -25,9 +25,11 @@ export type DescontoTDO = {
 	percentual: number;
 	dados: CotacaoTDOPayload
 	tipo: string;
+	frete: number;
 
 }
 export type ItemCotacaoTDO = {
+	codigoEmpresa: string;
 	contratoEmpresa: string;
 	codigo: string;
 	item: string;

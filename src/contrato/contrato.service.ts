@@ -59,17 +59,17 @@ export class ContratoService {
 			)
 	}
 
-	async getContrato(codigo: string) {
+	async getContrato(codigo: string, codigoEmpresa: string) {
 		const knex = this.cotacaoServiceDatabase.getConnection();
 		const registro = await knex('da37')
-			.leftJoin('da01', 'da37.cliente17', 'da01.codigo1')
+			.leftJoin('da' + codigoEmpresa, 'da37.cliente17', `da${codigoEmpresa}.codigo1`)
 			.whereNot('da37.status17', '=', 'C')
 			.where('da37.codigo17', '=', codigo)
 			.select({
 				codigo: 'da37.codigo17',
 				status: 'da37.status17',
-				cliente: 'da01.nome1',
-				cnpj: 'da01.cgc1',
+				cliente: `da${codigoEmpresa}.nome1`,
+				cnpj: `da${codigoEmpresa}.cgc1`,
 			})
 			.first()
 
@@ -178,10 +178,10 @@ export class ContratoService {
 
 		return knex
 	}
-	async getEmpresas(contrato: string) {
+	async getEmpresas(contrato: string, codigoEmpresa: string) {
 		const knex = await this.getConexaoCliente(contrato)
 
-		const empresas = await knex('pe01').select([
+		const empresas = await knex('pe' + codigoEmpresa).select([
 			'codigo',
 			'razao',
 			'empresa',
@@ -214,42 +214,4 @@ export class ContratoService {
 		return knex
 	}
 
-	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string) {
-
-		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
-		const codigoFornecedor = await this.cripto.publicDecript(codFornecedor, "Success2021");
-
-
-		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
-
-		const knex = await this.getConexaoCliente('1EDFFA7D75A6')
-
-		// Aqui um exemplo de usar um objeto no select, acho que a sintaxe fica mais limpa
-		const result = knex('deic01')
-			.leftJoin('dece01',
-				(k) => k.on('dece01.codigo6', 'deic01.codigo6').andOn('dece01.item6', 'deic01.item6')
-			)
-			.where('deic01.forneced6', codigoFornecedor)
-			.andWhere('deic01.codigo6', codigoCotacao)
-			.select(
-				{
-					//Aqui você termina de colocar as colunas que você quer, lembrando que como tem um join tem que incluir o nome da tabela antes
-					quantidade: 'dece01.qtd6',
-					marca: 'dece01.marca6',
-					descricao: 'dece01.descricao6',
-					data: 'deic01.data6',
-					codigo: 'deic01.codigo6',
-					item: 'deic01.item6',
-					produto: 'deic01.produto6',
-					valordoproduto: 'deic01.custo6',
-					frete: 'deic01.despesa6',
-					st: 'deic01.icmsst6',
-					icms: 'deic01.icms6',
-					ipi: 'deic01.ipi6',
-					mva: 'deic01.mva6',
-					codbarras: 'deic01.codfabric6'
-				}
-			)
-		return result;
-	}
 }
