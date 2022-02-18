@@ -138,7 +138,7 @@ export class DescontoService {
 			`update deic${empresa} as itens set desconto = ${arrayGeneratedDesconto.last},
 			despesa6 = ${arrayGenerated.last}
 				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}' and item6 = ${arrayIdGenerated.last}; `
-		).debug(false);
+		).debug(true);
 
 		// return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true, totalCamposAtualizados: result[0].affectedRows }
 		return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true }
