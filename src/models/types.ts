@@ -24,8 +24,10 @@ export type DadosSuccess = {
 export type DescontoTDO = {
 	percentual: number;
 	dados: CotacaoTDOPayload
-	tipo: string;
+	tipoDesconto: number;
 	frete: number;
+	tipo: number;
+	formaPagamento: number;
 
 }
 export type ItemCotacaoTDO = {

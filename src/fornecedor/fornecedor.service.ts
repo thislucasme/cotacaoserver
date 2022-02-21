@@ -18,4 +18,7 @@ export class FornecedorService {
 		const credenciais = await knex('fornecedorescredencials').select().where('email', email).first();
 		return credenciais;
 	}
+	async findFornecedorByEmailCredencialsTeste(email: string): Promise<FornecedorCredencials | null> {
+		return { email: "lucas@gmail.com", senha: "1234" };
+	}
 }

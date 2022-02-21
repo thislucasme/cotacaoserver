@@ -10,7 +10,7 @@ export class AuthService {
 	constructor(private fornecedorService: FornecedorService, private jwtService: JwtService) { }
 
 	async validateUsuario(email: string, senha: string): Promise<Partial<UsuarioTDO>> {
-		const usuario = await this.fornecedorService.findFornecedorByEmailCredencials(email);
+		const usuario = await this.fornecedorService.findFornecedorByEmailCredencialsTeste(email);
 		if (!usuario) throw new UnauthorizedException("Nenhum usuário cadastrado com esse email!");
 		if (senha !== usuario.senha) throw new UnauthorizedException("Nenhum usuário cadastrado com as credenciais informadas!");
 		return { ...usuario, senha: undefined };

@@ -130,13 +130,15 @@ export class DescontoService {
 
 		const frete = await knex1.schema.raw(
 			`update deic${empresa} as itens set desconto = ${arrayGeneratedDesconto.first},
-			despesa6 = ${arrayGenerated.first}
+			despesa6 = ${arrayGenerated.first},
+			formaPagamento = ${descontoTDO.formaPagamento}
 				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}' and item6 != ${arrayIdGenerated.last}; `
 		);
 
 		const desconto = await knex1.schema.raw(
 			`update deic${empresa} as itens set desconto = ${arrayGeneratedDesconto.last},
-			despesa6 = ${arrayGenerated.last}
+			despesa6 = ${arrayGenerated.last},
+			formaPagamento = ${descontoTDO.formaPagamento}
 				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}' and item6 = ${arrayIdGenerated.last}; `
 		).debug(true);
 
