@@ -3,6 +3,8 @@ import { Response } from 'express';
 import { restaurar } from 'src/common/cripto';
 import { CotacaoService } from './cotacao.service';
 
+//testes
+
 @Controller("cotacao")
 export class CotacaoController {
 	constructor(private cotacaoService: CotacaoService) { }
