@@ -16,6 +16,8 @@ export class CotacaoController {
 		return result;
 	}
 
+	//
+
 	@Post('/realizar-envio')
 	async receber(@Body() dadosSuccess: any, @Res() res: Response) {
 		const result = await this.cotacaoService.enviarEmailParaFornecedores(dadosSuccess);
