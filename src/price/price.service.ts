@@ -129,7 +129,8 @@ export class PriceService {
 					ipi: `deic${empresa}.ipi6`,
 					mva: `deic${empresa}.mva6`,
 					codbarras: `deic${empresa}.codfabric6`,
-					formapagamento: `deic${empresa}.formaPagamento`
+					formapagamento: `deic${empresa}.formaPagamento`,
+					desconto: `deic${empresa}.desconto`
 				}
 			).debug(false)
 

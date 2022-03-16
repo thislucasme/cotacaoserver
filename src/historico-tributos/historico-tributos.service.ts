@@ -1,8 +1,7 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ContratoService } from 'src/contrato/contrato.service';
 import { CriptoService } from 'src/cripto/cripto.service';
-import { DatabaseCotacaoService } from 'src/database/database-cotacao.service';
-import { HistoricoProdutosParametro, HistoricoProdutosTDO } from 'src/models/types';
+import { HistoricoProdutosParametro } from 'src/models/types';
 
 @Injectable()
 export class HistoricoTributosService {

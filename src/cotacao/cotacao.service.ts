@@ -12,6 +12,9 @@ import { CriptoService } from 'src/cripto/cripto.service';
 import { decode, encode } from 'base-64';
 import { getOrCreateKnexInstance } from 'src/database/knexCache';
 
+import * as moment from 'moment';
+moment.locale('pt-br')
+
 @Injectable()
 export class CotacaoService {
 	constructor(private readonly mailer: MailerService, private cotacaoDatabaseService: DatabaseCotacaoService, private contratoService: ContratoService, private criptoService: CriptoService) { }
@@ -40,6 +43,8 @@ export class CotacaoService {
 
 	async updateItemCotacao(itemCotacao: ItemCotacaoTDO) {
 
+		console.log(itemCotacao)
+
 		const codigoFornecedor = await this.criptoService.publicDecript(itemCotacao.fornecedor, "Success2021");
 		const empresa = await this.criptoService.publicDecript(itemCotacao.codigoEmpresa, "Success2021");
 		//const knex = await this.contratoService.getConexaoClienteCache('1EDFFA7D75A6');
@@ -50,8 +55,8 @@ export class CotacaoService {
 		const result = await knex1.schema.raw(
 			`UPDATE deic${empresa}, dece${empresa} SET deic${empresa}.custo6 = ${itemCotacao.valorProduto},
 			deic${empresa}.mva6 = ${itemCotacao.mva},
-			deic${empresa}.formaPagamento = '${itemCotacao.formaPagamento}',
 			deic${empresa}.datlan6 = '${itemCotacao.data}',
+			deic${empresa}.desconto = ${itemCotacao.desconto},
 			deic${empresa}.despesa6  = ${itemCotacao.frete}, deic${empresa}.icmsst6 = ${itemCotacao.st},
 			deic${empresa}.icms6 = ${itemCotacao.icms}, deic${empresa}.ipi6 = ${itemCotacao.ipi}
 			where deic${empresa}.forneced6 = '${codigoFornecedor}'
@@ -113,9 +118,22 @@ export class CotacaoService {
 		}
 		return true;
 	}
-	async enviarEmailParaFornecedores(dados: PayloadSuccess) {
+	async enviarEmailParaFornecedores(dados: PayloadSuccess): Promise<PayloadEnvioEmail | null> {
+
+		//verifica se a data recebida está no formato válido
+
+		if (dados.validade) {
+			let isValid = moment(moment(dados.validade)).isValid();
+			if (!isValid) {
+				throw new NotFoundException('Data inválida');
+			}
+		}
+
 		//buscar conexão, se conectar a ela
 		const result = await this.contratoService.getDadosConexao(dados.empresa.contratoEmpresaSuccess);
+		if (dados.validade === null) {
+
+		}
 		if (result.servidor === null) {
 			const payloadEnvioEmail: PayloadEnvioEmail = {
 				empresa: {
@@ -123,7 +141,7 @@ export class CotacaoService {
 					numeroCotacao: null,
 					numeroEmpresa: null
 				},
-				fornecedores: []
+				fornecedores: [],
 			}
 			return payloadEnvioEmail;
 		}
@@ -153,7 +171,7 @@ export class CotacaoService {
 					numeroCotacao: null,
 					numeroEmpresa: null
 				},
-				fornecedores: []
+				fornecedores: [],
 			}
 			return payloadEnvioEmail
 		}
@@ -165,7 +183,7 @@ export class CotacaoService {
 				numeroCotacao: dados.empresa.numeroCotacao,
 				numeroEmpresa: dados.empresa.numeroEmpresa
 			},
-			fornecedores: []
+			fornecedores: [],
 		}
 		//console.log(stringFornecedoresCriptografados[0])
 		// const cnpjs: string = dados.fornecedores.cnpjFornecedor;
@@ -210,6 +228,14 @@ export class CotacaoService {
 		}
 
 
+		let vencimento = dados.validade;
+		const dataVencimentoPadrao = moment().add(30, 'days');
+		if (!vencimento) {
+			vencimento = dataVencimentoPadrao.format();
+		}
+
+		console.log("vencimento", vencimento)
+
 		//payloadEnvioEmail.fornecedores[0] = fornecedor;
 
 		for (let i = 0; i < payloadEnvioEmail.fornecedores.length; i++) {
@@ -220,11 +246,13 @@ export class CotacaoService {
 				const numeroEmpresa = (dados.empresa.numeroEmpresa + encode('-success'));
 				const numeroCotacao = (dados.empresa.numeroCotacao + encode('-success'));
 				const cnpjFornecedor = (payloadEnvioEmail.fornecedores[i].cnpj) + encode('-success');
-				const codFornecedor = await this.criptoService.publicEncript((payloadEnvioEmail.fornecedores[i].codigoFornecedor), "Success2021")
+				const codFornecedor = await this.criptoService.publicEncript((payloadEnvioEmail.fornecedores[i].codigoFornecedor), "Success2021") + encode('-success')
+				const dataVencimento = encode(vencimento);
 
-				const fullUrl = contratoEmpresa + numeroEmpresa + numeroCotacao + cnpjFornecedor + codFornecedor;
+				const fullUrl = contratoEmpresa + numeroEmpresa + numeroCotacao + cnpjFornecedor + codFornecedor + dataVencimento;
 
 				const prefixUrl = 'http://localhost:3005/painel/cotacao/' + fullUrl;
+				//const prefixUrl = 'https://cotacaocliente-8gzt77vgm-thislucasme.vercel.app/painel/cotacao/' + fullUrl;
 
 				//await enviar email
 				const envio = await this.sendEmailTo(payloadEnvioEmail.fornecedores[i].email, prefixUrl, empresa, payloadEnvioEmail.fornecedores[i].nome);
@@ -244,10 +272,12 @@ export class CotacaoService {
 
 
 		return payloadEnvioEmail;
+
 	}
 
 	async isAllPreenchido(body: CotacaoTDOPayload) {
 
 	}
+
 
 }

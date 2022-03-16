@@ -48,6 +48,7 @@ export type ItemCotacaoTDO = {
 	ipi: number;
 	mva: number;
 	data: string;
+	desconto: number;
 }
 export type CotacaoTDOPayload = {
 	codigo: string;
@@ -84,8 +85,8 @@ export type PayloadEnvioEmail = {
 		contratoEmpresaSuccess: string;
 		numeroCotacao: string;
 		numeroEmpresa: string;
-	}
-	fornecedores: FornecedorData[];
+	},
+	fornecedores: FornecedorData[],
 }
 
 export type PayloadSuccess = {
@@ -98,6 +99,7 @@ export type PayloadSuccess = {
 	fornecedores: {
 		cnpjFornecedor: string;
 	}
+	validade: any | null;
 }
 export type GeneratedData = {
 	array: number[];

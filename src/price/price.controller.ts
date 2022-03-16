@@ -23,6 +23,7 @@ export class PriceController {
 			codigoEmpresa: codEmpresa
 		}
 
+		console.log(codCotacao, codFornecedor, codContrato, codEmpresa)
 
 		const total = await this.priceService.calcularTotal(body, false);
 		const frete = await this.priceService.calcularFrete(body);
@@ -39,7 +40,7 @@ export class PriceController {
 			}
 		}
 
-		return [data, total, totalDesconto, frete, [{ "isReady": isReady }], [{ "formaPagamento": data[0][0].formapagamento }]];
+		return [data, total, totalDesconto, frete, [{ "isReady": isReady }], [{ "formaPagamento": data[0][0].formapagamento }], [{ "numeroCotacao": data[0][0].codigo }]];
 	}
 	@Post('update')
 	async updateItemCotacao(@Body() body: types.ItemCotacaoTDO) {
