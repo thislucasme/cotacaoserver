@@ -49,6 +49,7 @@ export type ItemCotacaoTDO = {
 	mva: number;
 	data: string;
 	desconto: number;
+	valordoproduto: number
 }
 export type CotacaoTDOPayload = {
 	codigo: string;

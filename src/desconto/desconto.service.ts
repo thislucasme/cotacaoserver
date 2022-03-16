@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import knex from 'knex';
 import { restaurar } from 'src/common/cripto';
 import { Empresa } from 'src/contrato/contrato.dto';
@@ -6,6 +6,7 @@ import { CriptoService } from 'src/cripto/cripto.service';
 import { getOrCreateKnexInstance } from 'src/database/knexCache';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
 import { TipoDesconto } from 'src/enuns/enuns';
+import { calcularDiferencaDesconto } from 'src/helper/helper';
 import { DescontoTDO, GeneratedData, GenerateIdDataByArray, ItemCotacaoTDO } from 'src/models/types';
 import { PriceService } from 'src/price/price.service';
 import { UtilService } from './util.service';
@@ -115,83 +116,85 @@ export class DescontoService {
 		/*buscar no banco e somar o valor de custo de todos os itens para descobrir quanto
 			 em percentual é o valor do desconto que está sendo passado */
 		const itens = await this.priceService.getItensCotacao(descontoTDO.dados.codigo, descontoTDO.dados.fornecedor, descontoTDO.dados.contratoEmpresa, descontoTDO.dados.codigoEmpresa)
-		const itensTyped: ItemCotacaoTDO[] = itens[0];
+		const itensCotacao: ItemCotacaoTDO[] = itens[0];
+
+		const itensTyped = calcularDiferencaDesconto(itensCotacao, descontoTDO)
 
 		//this.utilService.calcularDiff(descontoTDO, itensTyped)
 
-		let totalCusto = 0;
-		itensTyped.forEach((item: any, index) => {
-			totalCusto += item.valordoproduto;
-		});
-		let percentualBody = descontoTDO.percentual;
+		// let totalCusto = 0;
+		// itensTyped.forEach((item: any) => {
+		// 	totalCusto += item.valordoproduto;
+		// });
+		// let percentualBody = descontoTDO.percentual;
 
 
-		if (descontoTDO.tipo === TipoDesconto.VALOR) {
-			percentualBody = (descontoTDO.percentual / totalCusto) * 100
-		}
+		// if (descontoTDO.tipo === TipoDesconto.VALOR) {
+		// 	percentualBody = (descontoTDO.percentual / totalCusto) * 100
+		// }
 
-		itensTyped.forEach((item: any, index) => {
-			// itensTyped[index].desconto = 100;
-			//calcula o percentual, e arredonda para duas casas decimais conforme as normas da abnt
-			const custoItem = item.valordoproduto;
-			const percentual = (percentualBody) / 100;
-			const descontoFinal = Number.parseFloat(abnt.arredonda(percentual * custoItem));
+		// itensTyped.forEach((item: any, index) => {
+		// 	// itensTyped[index].desconto = 100;
+		// 	//calcula o percentual, e arredonda para duas casas decimais conforme as normas da abnt
+		// 	const custoItem = item.valordoproduto;
+		// 	const percentual = (percentualBody) / 100;
+		// 	const descontoFinal = Number.parseFloat(abnt.arredonda(percentual * custoItem));
 
-			//atribui o valor do desconto ao item
+		// 	//atribui o valor do desconto ao item
 
-			itensTyped[index].desconto = descontoFinal;
+		// 	itensTyped[index].desconto = descontoFinal;
 
-		});
-		//console.log(totalCusto)
-
-
-
-		//percorrer lista de itens aplicando o desconto já formatado nas normas da abnt
+		// });
+		// //console.log(totalCusto)
 
 
-		itensTyped.forEach((item: any, index) => {
-			// itensTyped[index].desconto = 100;
-			//calcula o percentual, e arredonda para duas casas decimais conforme as normas da abnt
-			const custoItem = item.valordoproduto;
-			const percentual = (percentualBody) / 100;
-			const descontoFinal = Number.parseFloat(abnt.arredonda(percentual * custoItem));
 
-			//atribui o valor do desconto ao item
-			itensTyped[index].desconto = descontoFinal;
-
-		});
-		let somaDesconto = 0;
-		itensTyped.forEach((item: any, index) => {
-			somaDesconto += item.desconto;
-		});
-		// console.log(somaDesconto, totalCusto)
+		// //percorrer lista de itens aplicando o desconto já formatado nas normas da abnt
 
 
-		const percent = (percentualBody) / 100;
-		const descontoFinal = Number.parseFloat(abnt.arredonda(percent * totalCusto));
-		// console.log("total custo dos itens:", totalCusto, "desconto:", descontoFinal, "totalcusto - desconto:", totalCusto - descontoFinal)
-		// console.log("Desconto baseado no valorTotalCusto:", descontoFinal, "Desconto baseado na soma de descontos:", somaDesconto)
+		// itensTyped.forEach((item: any, index) => {
+		// 	// itensTyped[index].desconto = 100;
+		// 	//calcula o percentual, e arredonda para duas casas decimais conforme as normas da abnt
+		// 	const custoItem = item.valordoproduto;
+		// 	const percentual = (percentualBody) / 100;
+		// 	const descontoFinal = Number.parseFloat(abnt.arredonda(percentual * custoItem));
 
-		const diffBettween = abnt.arredonda(descontoFinal - (abnt.arredonda(somaDesconto)));
-		// console.log("diferença:", abnt.arredonda(diffBettween + somaDesconto))
+		// 	//atribui o valor do desconto ao item
+		// 	itensTyped[index].desconto = descontoFinal;
 
-		console.log("diffeBetween", abnt.arredonda(diffBettween))
-		console.log("ultimo índice", abnt.arredonda(itensTyped[itensTyped.length - 1].desconto + diffBettween))
+		// });
+		// let somaDesconto = 0;
+		// itensTyped.forEach((item: any, index) => {
+		// 	somaDesconto += item.desconto;
+		// });
+		// // console.log(somaDesconto, totalCusto)
 
-		itensTyped[itensTyped.length - 1].desconto = abnt.arredonda(itensTyped[itensTyped.length - 1].desconto + diffBettween);
+
+		// const percent = (percentualBody) / 100;
+		// const descontoFinal = Number.parseFloat(abnt.arredonda(percent * totalCusto));
+		// // console.log("total custo dos itens:", totalCusto, "desconto:", descontoFinal, "totalcusto - desconto:", totalCusto - descontoFinal)
+		// // console.log("Desconto baseado no valorTotalCusto:", descontoFinal, "Desconto baseado na soma de descontos:", somaDesconto)
+
+		// const diffBettween = abnt.arredonda(descontoFinal - (abnt.arredonda(somaDesconto)));
+		// // console.log("diferença:", abnt.arredonda(diffBettween + somaDesconto))
+
+		// console.log("diffeBetween", abnt.arredonda(diffBettween))
+		// console.log("ultimo índice", abnt.arredonda(itensTyped[itensTyped.length - 1].desconto + diffBettween))
+
+		// itensTyped[itensTyped.length - 1].desconto = abnt.arredonda(itensTyped[itensTyped.length - 1].desconto + diffBettween);
 
 
-		let sun = 0;
-		itensTyped.forEach((item: any, index) => {
-			sun += item.desconto
+		// let sun = 0;
+		// itensTyped.forEach((item: any, index) => {
+		// 	sun += item.desconto
 
-		});
-		console.log('soma desconto cada item', sun)
-		console.log("percentual", percentualBody)
+		// });
+		// console.log('soma desconto cada item', sun)
+		// console.log("percentual", percentualBody)
 
-		itensTyped.forEach((item, index) => {
-			console.log("item ", index, item.desconto)
-		})
+		// itensTyped.forEach((item, index) => {
+		// 	console.log("item ", index, item.desconto)
+		// })
 
 		//criar queries para fazer o update em cada item
 
@@ -211,15 +214,19 @@ export class DescontoService {
 
 
 		itensTyped.forEach(async (item) => {
-			let usersQueryBuilder = knex1('deic01')
+			let usersQueryBuilder = knex1('deic' + empresa)
 			usersQueryBuilder.update({
-				desconto: item.desconto
+				desconto: item.desconto,
+				despesa6: item.frete
 			})
-			usersQueryBuilder.where('forneced6', 'AG000002')
-			usersQueryBuilder.andWhere('codigo6', '0000000001')
+			usersQueryBuilder.where('forneced6', fornecedor)
+			usersQueryBuilder.andWhere('codigo6', codigoCotacao)
 			usersQueryBuilder.andWhere("item6", item.item)
 			const response = await usersQueryBuilder;
-			console.log(response[0])
+			const result: number = Number.parseInt(response.toString());
+			if (result === 0) {
+				throw new BadRequestException('Ocorreu um erro ao atualizar o desconto')
+			}
 		})
 
 
