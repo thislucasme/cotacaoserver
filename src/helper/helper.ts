@@ -109,7 +109,8 @@ export function calcularDiferencaDesconto(itensTyped: ItemCotacaoTDO[], desconto
 	//console.log("diffeBetween", abnt.arredonda(diffBettween))
 	//console.log("ultimo índice", abnt.arredonda(itensTyped[itensTyped.length - 1].desconto + diffBettween))
 
-	itensTyped[itensTyped.length - 1].desconto = abnt.arredonda(itensTyped[itensTyped.length - 1].desconto + diffBettween);
+
+	//itensTyped[itensTyped.length - 1].desconto = abnt.arredonda(itensTyped[itensTyped.length - 1].desconto + diffBettween);
 
 
 	console.log("diffeBetween frete", abnt.arredonda(diffBettweenFrete))
@@ -147,16 +148,16 @@ export function calcularDiferencaDesconto(itensTyped: ItemCotacaoTDO[], desconto
 
 
 	if (descontoTDO.tipo === TipoDesconto.PERCENTUAL) {
-		const diferencaDesconto = sun - descontoTDO.percentual;
-		//itensTyped[maiorDescontoIndex].desconto = itensTyped[maiorDescontoIndex].desconto - Number.parseFloat(diferencaDesconto.toFixed(2))
-
-		const tot = percentual(descontoTDO.percentual).from(totalCusto)
-		console.log("desconto", tot)
+		const porcentagem = percentual(descontoTDO.percentual).from(totalCusto)
+		const diferencaDesconto = sun - Number.parseFloat(porcentagem.toFixed(2));
+		itensTyped[maiorDescontoIndex].desconto = itensTyped[maiorDescontoIndex].desconto - Number.parseFloat(diferencaDesconto.toFixed(2))
 	}
 
 
 	console.log("frete parametro", descontoTDO.frete)
 	console.log(Number.parseFloat(diferencaFrete.toFixed(2)))
+
+	console.log("desconto", sun, "custo total", totalCusto)
 	//itensTyped[itensTyped.length - 1].frete = itensTyped[itensTyped.length - 1].frete - Number.parseFloat(diferenca.toFixed(2))
 	itensTyped[maiorFreteIndex].frete = itensTyped[maiorFreteIndex].frete - Number.parseFloat(diferencaFrete.toFixed(2))
 	return itensTyped;

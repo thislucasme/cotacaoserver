@@ -61,7 +61,7 @@ export class SiteSuccessDatabaseService {
 		const conn = await getOrCreateKnexInstance(this.registroRestaurado)
 		return conn;
 	}
-	async getConnectionDefa() {
+	getConnectionDefa() {
 		return this.knex;
 	}
 }

@@ -1,18 +1,17 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import { DatabaseCotacaoService } from 'src/database/database-cotacao.service';
-import { ContratoService } from '../contrato/contrato.service';
 import { MailerService } from '@nestjs-modules/mailer';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { encode } from 'base-64';
+import knexfn from 'knex';
+import * as moment from 'moment';
 import { restaurar } from 'src/common/cripto';
 import { Empresa } from 'src/contrato/contrato.dto';
-import { createhtml } from 'src/util/util';
-import { CotacaoTDOPayload, DadosSuccess, FornecedorData, ItemCotacaoTDO, PayloadEnvioEmail, PayloadSuccess } from 'src/models/types';
-import knexfn from 'knex';
 import { CriptoService } from 'src/cripto/cripto.service';
+import { DatabaseCotacaoService } from 'src/database/database-cotacao.service';
+import { CotacaoTDOPayload, DadosSuccess, FornecedorData, PayloadEnvioEmail, PayloadSuccess } from 'src/models/types';
+import { createhtml } from 'src/util/util';
+import { ContratoService } from '../contrato/contrato.service';
 
-import { decode, encode } from 'base-64';
-import { getOrCreateKnexInstance } from 'src/database/knexCache';
 
-import * as moment from 'moment';
 moment.locale('pt-br')
 
 @Injectable()
@@ -41,7 +40,7 @@ export class CotacaoService {
 
 	}
 
-	async updateItemCotacao(itemCotacao: ItemCotacaoTDO) {
+	async updateItemCotacao(itemCotacao: any) {
 
 		console.log(itemCotacao)
 
@@ -57,12 +56,20 @@ export class CotacaoService {
 			deic${empresa}.mva6 = ${itemCotacao.mva},
 			deic${empresa}.datlan6 = '${itemCotacao.data}',
 			deic${empresa}.desconto = ${itemCotacao.desconto},
-			deic${empresa}.despesa6  = ${itemCotacao.frete}, deic${empresa}.icmsst6 = ${itemCotacao.st},
-			deic${empresa}.icms6 = ${itemCotacao.icms}, deic${empresa}.ipi6 = ${itemCotacao.ipi}
+			deic${empresa}.despesa6  = ${itemCotacao.frete},
+			deic${empresa}.observacao = '${itemCotacao.observacao}',
+			deic${empresa}.icmsst6 = ${itemCotacao.st},
+			deic${empresa}.icms6 = ${itemCotacao.icms},
+			deic${empresa}.ipi6 = ${itemCotacao.ipi}
 			where deic${empresa}.forneced6 = '${codigoFornecedor}'
 			and deic${empresa}.item6 = '${itemCotacao.item}'
 			and dece${empresa}.item6 = '${itemCotacao.item}' and deic${empresa}.produto6 = '${itemCotacao.codigoInterno}' and dece${empresa}.produto6 = '${itemCotacao.codigoInterno}';`
-		)
+		).then((result) => {
+			console.log(result)
+		}).catch(result => {
+			console.log(result)
+			throw new NotFoundException("jdjd")
+		})
 
 
 

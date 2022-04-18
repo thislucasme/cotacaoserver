@@ -130,7 +130,8 @@ export class PriceService {
 					mva: `deic${empresa}.mva6`,
 					codbarras: `deic${empresa}.codfabric6`,
 					formapagamento: `deic${empresa}.formaPagamento`,
-					desconto: `deic${empresa}.desconto`
+					desconto: `deic${empresa}.desconto`,
+					observacao: `deic${empresa}.observacao`
 				}
 			).debug(false)
 
@@ -149,6 +150,8 @@ export class PriceService {
 		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
 
 		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
+
+
 
 		const result = await knex.raw(
 			`select ifnull(sum(despesa6), 0) as totalFrete  from dece${empresa} as dece,

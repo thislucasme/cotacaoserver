@@ -1,3 +1,4 @@
+import { CotacaoinfoModule } from './cotacaoinfo/cotacaoinfo.module';
 import { DescontoModule } from './desconto/desconto.module';
 import { UserModule } from './user/user.module';
 import { BancoModule } from './banco/banco.module';
@@ -21,6 +22,7 @@ import { FlagModule } from './Flags/flag.module';
 
 @Module({
   imports: [
+    CotacaoinfoModule,
     DescontoModule,
     UserModule,
     BancoModule,

@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import knex from 'knex';
 import { restaurar } from 'src/common/cripto';
 import { Empresa } from 'src/contrato/contrato.dto';
@@ -12,6 +12,12 @@ import { PriceService } from 'src/price/price.service';
 import { UtilService } from './util.service';
 const percent = require("percent-value")
 
+import fs from 'fs';
+import PdfPrinter from 'pdfmake';
+
+
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
+
 const ABNT_5891_1977 = require('arredondamentoabnt').ABNT_5891_1977
 const abnt = new ABNT_5891_1977(2);
 
@@ -24,6 +30,33 @@ export class DescontoService {
 		private utilService: UtilService
 	) { }
 
+
+	gerar = () => {
+		const fonts = {
+			Helvetica: {
+				normal: 'Helvetica',
+				bold: 'Helvetica-Bold',
+				italics: 'Helvetica-Oblique',
+				bolditalics: 'Helvetica-BoldOblique'
+			}
+		};
+
+		const printer = new PdfPrinter(fonts)
+
+		const docDefinitions: TDocumentDefinitions = {
+			defaultStyle: { font: "Helvetica" },
+			content: [
+				{ text: "Meu primeiro relatório" }
+			],
+		}
+
+		const pdfDoc = printer.createPdfKitDocument(docDefinitions);
+		pdfDoc.pipe(fs.createWriteStream("Relatório.pdf"))
+		pdfDoc.end()
+
+		return { ok: 200 }
+
+	}
 	async getDados() {
 		const knex = await this.siteSuccessDatabase.getConnection();
 		const registro = await knex('cfgw').select();
@@ -213,21 +246,76 @@ export class DescontoService {
 		// }))
 
 
-		itensTyped.forEach(async (item) => {
-			let usersQueryBuilder = knex1('deic' + empresa)
-			usersQueryBuilder.update({
-				desconto: item.desconto,
-				despesa6: item.frete
-			})
-			usersQueryBuilder.where('forneced6', fornecedor)
-			usersQueryBuilder.andWhere('codigo6', codigoCotacao)
-			usersQueryBuilder.andWhere("item6", item.item)
-			const response = await usersQueryBuilder;
-			const result: number = Number.parseInt(response.toString());
-			if (result === 0) {
-				throw new BadRequestException('Ocorreu um erro ao atualizar o desconto')
+		return await knex1.transaction(trx => {
+
+			const queries = [];
+
+			itensTyped.forEach((item) => {
+				const query = knex1('deic' + empresa).update({
+					desconto: item.desconto,
+					despesa6: item.frete
+				}).where('forneced6', fornecedor).andWhere('codigo6', codigoCotacao).andWhere("item6", item.item)
+					.transacting(trx).debug(false)
+				queries.push(query)
+			});
+
+			Promise.all(queries)
+				.then(trx.commit)
+				.catch(trx.rollback)
+
+
+		}).then((resposta: number[]) => {
+
+			let total = 0;
+			resposta.forEach((code: number) => {
+				total += code
+
+			});
+			if (total !== itensCotacao.length) {
+				return {
+					"statusCode": HttpStatus.BAD_REQUEST,
+					"message": "Ocorreu um erro ao atualizar os itens",
+				}
+			}
+
+			return {
+				"statusCode": 201,
+				"message": "Itens atualizados",
+			}
+		}).catch(error => {
+			console.log("error", error)
+			return {
+				"statusCode": HttpStatus.BAD_REQUEST,
+				"message": "Ocorreu um erro ao atualizar os itens",
 			}
 		})
+
+
+
+		// let code = {};
+
+		// itensTyped.forEach(async (item) => {
+		// 	let usersQueryBuilder = knex1('deic' + empresa)
+		// 	usersQueryBuilder.update({
+		// 		desconto: item.desconto,
+		// 		despesa6: item.frete
+		// 	})
+		// 	usersQueryBuilder.where('forneced6', fornecedor)
+		// 	usersQueryBuilder.andWhere('codigo6', codigoCotacao)
+		// 	usersQueryBuilder.andWhere("item6", item.item)
+		// 	const response = await usersQueryBuilder.catch(e => {
+		// 		console.log("error")
+		// 		code = { code: 2 }
+		// 	});
+
+		// const result: number = Number.parseInt(response.toString());
+		// console.log("result", result)
+		// if (result === 0) {
+		// 	return { statusCode: HttpStatus.BAD_REQUEST, message: `Ocorreu um erro ao salvar esse item.`, success: false }
+		// }
+		//	})
+
+		//	return code;
 
 
 
@@ -263,7 +351,6 @@ export class DescontoService {
 
 		//const data = await this.priceService.getItensCotacao(descontoTDO.dados.codigo, descontoTDO.dados.fornecedor, descontoTDO.dados.contratoEmpresa, descontoTDO.dados.codigoEmpresa)
 
-		return itens;
 	}
 
 	async teste(body: any) {
