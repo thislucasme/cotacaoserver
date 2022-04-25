@@ -1,4 +1,5 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { knex } from 'src/db/db';
 import { LoginTdo } from 'src/usuario/interfaces/login.tdo';
 import { UsuarioTDO } from 'src/usuario/usuarioDTO';
 import { AuthService } from './auth.service';
@@ -21,5 +22,27 @@ export class AuthController {
 	@Post('/user')
 	async usuarioAtual(@CurrentUser() usuario: UsuarioTDO): Promise<UsuarioTDO> {
 		return usuario;
+	}
+
+
+	@Post('/banco')
+	async teste() {
+		this.testeTransaction();
+		return null;
+	}
+
+	async testeTransaction() {
+		try {
+			await knex.transaction(async trans => {
+
+				await knex.insert({ nome: "Lucas" }).table("teste");
+				await knex.insert({ nome: "Silva" }).table("teste");
+				await knex.insert({ nome: "Dias" }).table("teste");
+
+			})
+
+		} catch (err) {
+			console.log("Error")
+		}
 	}
 }
