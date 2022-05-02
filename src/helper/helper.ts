@@ -29,7 +29,8 @@ export function calcularDiferencaDesconto(itensTyped: ItemCotacaoTDO[], desconto
 	const arrayFrete = []
 
 	itensTyped.forEach((element: ItemCotacaoTDO) => {
-		arrayDesconto.push(element.desconto)
+		console.log()
+		arrayDesconto.push(element.desconto === null ? 0 : element.desconto)
 		arrayFrete.push(element.frete)
 	});
 

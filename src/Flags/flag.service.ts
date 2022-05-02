@@ -19,7 +19,7 @@ export class FlagService {
 
 
 		const result = await dadosEmpresa.raw(
-			`select dece.codigo6, dece.item6, deic.flagStatus as fornvenc6  from dece${empresa} as dece,
+			`select dece.codigo6, dece.item6, deic.stasinc6  as fornvenc6  from dece${empresa} as dece,
 			deic${empresa} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6
 			and dece.codigo6 = '${codigo}' and deic.forneced6 = '${fornecedor}'; `
 		);
@@ -37,7 +37,7 @@ export class FlagService {
 		//'0000000001'
 		try {
 			const result = await knex.raw(
-				`update dece${codigoEmpresa} as dece, deic${codigoEmpresa} as deic set deic.flagStatus= '${cotacaoTDOPayload.flag}' 
+				`update dece${codigoEmpresa} as dece, deic${codigoEmpresa} as deic set deic.stasinc6 = '${cotacaoTDOPayload.flag}' 
 			where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacaoDescript}' and deic.forneced6 = '${codigoFornecedorDescript}'; `
 			);

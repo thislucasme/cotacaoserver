@@ -42,7 +42,7 @@ export class CotacaoService {
 
 	async updateItemCotacao(itemCotacao: any) {
 
-		console.log(itemCotacao)
+		console.log("Forma pagamento", itemCotacao)
 
 		const codigoFornecedor = await this.criptoService.publicDecript(itemCotacao.fornecedor, "Success2021");
 		const empresa = await this.criptoService.publicDecript(itemCotacao.codigoEmpresa, "Success2021");
@@ -55,12 +55,14 @@ export class CotacaoService {
 			`UPDATE deic${empresa}, dece${empresa} SET deic${empresa}.custo6 = ${itemCotacao.valorProduto},
 			deic${empresa}.mva6 = ${itemCotacao.mva},
 			deic${empresa}.datlan6 = '${itemCotacao.data}',
-			deic${empresa}.desconto = ${itemCotacao.desconto},
+			deic${empresa}.descot6 = ${itemCotacao.desconto},
 			deic${empresa}.despesa6  = ${itemCotacao.frete},
-			deic${empresa}.observacao = '${itemCotacao.observacao}',
+			deic${empresa}.observac6 = '${itemCotacao.observacao}',
 			deic${empresa}.icmsst6 = ${itemCotacao.st},
 			deic${empresa}.icms6 = ${itemCotacao.icms},
-			deic${empresa}.ipi6 = ${itemCotacao.ipi}
+			deic${empresa}.ipi6 = ${itemCotacao.ipi},
+			deic${empresa}.forpag6 = ${itemCotacao.formaPagamento},
+			deic${empresa}.tempoent6 = ${itemCotacao.prazo}
 			where deic${empresa}.forneced6 = '${codigoFornecedor}'
 			and deic${empresa}.item6 = '${itemCotacao.item}'
 			and dece${empresa}.item6 = '${itemCotacao.item}' and deic${empresa}.produto6 = '${itemCotacao.codigoInterno}' and dece${empresa}.produto6 = '${itemCotacao.codigoInterno}';`

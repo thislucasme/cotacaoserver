@@ -149,7 +149,8 @@ export class DescontoService {
 		/*buscar no banco e somar o valor de custo de todos os itens para descobrir quanto
 			 em percentual é o valor do desconto que está sendo passado */
 		const itens = await this.priceService.getItensCotacao(descontoTDO.dados.codigo, descontoTDO.dados.fornecedor, descontoTDO.dados.contratoEmpresa, descontoTDO.dados.codigoEmpresa)
-		const itensCotacao: ItemCotacaoTDO[] = itens[0];
+		const itensCotacao: any[] = itens[0];
+
 
 		const itensTyped = calcularDiferencaDesconto(itensCotacao, descontoTDO)
 
@@ -246,14 +247,16 @@ export class DescontoService {
 		// }))
 
 
+
 		return await knex1.transaction(trx => {
 
 			const queries = [];
 
 			itensTyped.forEach((item) => {
 				const query = knex1('deic' + empresa).update({
-					desconto: item.desconto,
-					despesa6: item.frete
+					descot6: item.desconto,
+					despesa6: item.frete,
+					forpag6: descontoTDO.formaPagamento
 				}).where('forneced6', fornecedor).andWhere('codigo6', codigoCotacao).andWhere("item6", item.item)
 					.transacting(trx).debug(false)
 				queries.push(query)
@@ -377,18 +380,18 @@ export class DescontoService {
 		]
 		const valorTotalItens = await this.utilService.calcularTotalItens(dados)
 		const percentual = abnt.arredonda(percent(desconto).of(valorTotalItens));
-		console.log("valor total itens", valorTotalItens)
-		console.log(desconto, "é", percentual, "% de", valorTotalItens)
+		// console.log("valor total itens", valorTotalItens)
+		// console.log(desconto, "é", percentual, "% de", valorTotalItens)
 
 		let value = Number.parseFloat(abnt.arredonda(percent(percentual).from(valorTotalItens)).toFixed(2));
 		//value = desconto - value;
 		value += value - desconto;
 
 		//value += resto;
-		console.log("processo inverso", value)
-		console.log(desconto)
+		// console.log("processo inverso", value)
+		// console.log(desconto)
 		//console.log(resto)
-		console.log(abnt.arredonda(desconto - value))
+		//console.log(abnt.arredonda(desconto - value))
 	}
 
 	async adicionarDesconto(descontoTDO: DescontoTDO) {
@@ -408,9 +411,6 @@ export class DescontoService {
 		const arrayGeneratedDesconto = await this.utilService.generateArrayOfValuesDesconto(descontoTDO, totalItens);
 		const arrayIdGenerated: GenerateIdDataByArray = await this.utilService.generateIdDataByArray(ids);
 
-		console.log(arrayGeneratedDesconto)
-
-
 		// if (descontoTDO.tipo === 'P') {
 		// 	totalParaCadaItem = valorAserDiminuido / totalItens[0][0].total;
 		// } else {
@@ -420,18 +420,21 @@ export class DescontoService {
 		//console.log(arrayGenerated)
 
 		const frete = await knex1.schema.raw(
-			`update deic${empresa} as itens set desconto = ${arrayGeneratedDesconto.first},
+			`update deic${empresa} as itens set descot6 = ${arrayGeneratedDesconto.first},
 			despesa6 = ${arrayGenerated.first},
-			formaPagamento = ${descontoTDO.formaPagamento}
+			forpag6  = ${descontoTDO.formaPagamento}
 				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}' and item6 != ${arrayIdGenerated.last}; `
 		);
 
 		const desconto = await knex1.schema.raw(
-			`update deic${empresa} as itens set desconto = ${arrayGeneratedDesconto.last},
+			`update deic${empresa} as itens set descot6 = ${arrayGeneratedDesconto.last},
 			despesa6 = ${arrayGenerated.last},
-			formaPagamento = ${descontoTDO.formaPagamento}
+			forpag6  = ${descontoTDO.formaPagamento}
 				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}' and item6 = ${arrayIdGenerated.last}; `
-		).debug(false);
+		)
+		console.log("=========")
+		console.log(descontoTDO)
+		console.log("=========")
 
 		// return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true, totalCamposAtualizados: result[0].affectedRows }
 		return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true }

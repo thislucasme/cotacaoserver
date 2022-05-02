@@ -23,7 +23,7 @@ export class PriceController {
 			codigoEmpresa: codEmpresa
 		}
 
-		console.log(codCotacao, codFornecedor, codContrato, codEmpresa)
+
 
 		const total = await this.priceService.calcularTotal(body, false);
 		const frete = await this.priceService.calcularFrete(body);

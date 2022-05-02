@@ -44,6 +44,7 @@ export type ItemCotacaoTDO = {
 	st: number;
 	icms: number;
 	formaPagamento: string;
+	formapagamento: string;
 	fornecedor: string;
 	ipi: number;
 	mva: number;
