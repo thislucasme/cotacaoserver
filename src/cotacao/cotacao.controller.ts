@@ -24,8 +24,10 @@ export class CotacaoController {
 	async receber(@Body() dadosSuccess: any, @Res() res: Response) {
 		const result = await this.cotacaoService.enviarEmailParaFornecedores(dadosSuccess);
 
+		//console.log(result)
+
 		if (result.empresa.contratoEmpresaSuccess === null) {
-			res.status(HttpStatus.NOT_FOUND).send();
+			res.status(HttpStatus.NOT_FOUND).send("não foi encontrato nenhum contrato ");
 		} else {
 			for (let fornecedor of result.fornecedores) {
 				if (fornecedor.enviado === false) {

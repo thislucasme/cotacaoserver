@@ -140,6 +140,7 @@ export class CotacaoService {
 
 		//buscar conexão, se conectar a ela
 		const result = await this.contratoService.getDadosConexao(dados.empresa.contratoEmpresaSuccess);
+		console.log(result)
 		if (dados.validade === null) {
 
 		}
@@ -174,6 +175,7 @@ export class CotacaoService {
 		if (snapshot) {
 
 		} else {
+			throw new NotFoundException(`Cotação com o número ${codigoCotacaoDescriptografado} não existe`)
 			const payloadEnvioEmail: PayloadEnvioEmail = {
 				empresa: {
 					contratoEmpresaSuccess: null,
