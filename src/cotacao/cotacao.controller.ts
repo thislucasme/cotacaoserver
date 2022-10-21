@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, NotFoundException, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { restaurar } from 'src/common/cripto';
 import { CotacaoService } from './cotacao.service';
@@ -27,7 +27,7 @@ export class CotacaoController {
 		//console.log(result)
 
 		if (result.empresa.contratoEmpresaSuccess === null) {
-			res.status(HttpStatus.NOT_FOUND).send("não foi encontrato nenhum contrato ");
+				throw new NotFoundException(`Contrato não existe na base de dados`)
 		} else {
 			for (let fornecedor of result.fornecedores) {
 				if (fornecedor.enviado === false) {

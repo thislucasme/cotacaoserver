@@ -1,5 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { encode } from 'base-64';
 import knexfn from 'knex';
 import * as moment from 'moment';
@@ -134,7 +134,7 @@ export class CotacaoService {
 		if (dados.validade) {
 			let isValid = moment(moment(dados.validade)).isValid();
 			if (!isValid) {
-				throw new NotFoundException('Data inválida');
+				throw new BadRequestException('Data inválida');
 			}
 		}
 
@@ -197,6 +197,7 @@ export class CotacaoService {
 			fornecedores: [],
 		}
 		//console.log(stringFornecedoresCriptografados[0])
+		//algo
 		// const cnpjs: string = dados.fornecedores.cnpjFornecedor;
 
 		// const fornecedores = cnpjs.split(' ');
