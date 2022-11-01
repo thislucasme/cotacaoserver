@@ -263,9 +263,9 @@ export class CotacaoService {
 
 				const fullUrl = contratoEmpresa + numeroEmpresa + numeroCotacao + cnpjFornecedor + codFornecedor + dataVencimento;
 
-				const prefixUrl = 'http://localhost:3005/painel/cotacao/' + fullUrl;
-				//const prefixUrl = 'https://cotacaocliente-8gzt77vgm-thislucasme.vercel.app/painel/cotacao/' + fullUrl;
-
+				// const prefixUrl = 'http://localhost:3005/painel/cotacao/' + fullUrl;
+				const prefixUrl = 'https://cotacao.success.inf.br/painel/cotacao/' + fullUrl;
+//
 				//await enviar email
 				const envio = await this.sendEmailTo(payloadEnvioEmail.fornecedores[i].email, prefixUrl, empresa, payloadEnvioEmail.fornecedores[i].nome);
 				const accepted = envio.accepted[0] === payloadEnvioEmail.fornecedores[i].email;
