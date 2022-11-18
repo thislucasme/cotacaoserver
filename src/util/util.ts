@@ -240,3 +240,8 @@ a[x-apple-data-detectors] {
 
 `)
 }
+
+export const createTableName = (tabela: string, empresa: string) => {
+  console.log(tabela + empresa.toLowerCase())
+  return tabela + empresa.toLowerCase();
+}

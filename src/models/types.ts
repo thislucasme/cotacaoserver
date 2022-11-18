@@ -60,6 +60,13 @@ export type CotacaoTDOPayload = {
 	contratoEmpresa: string;
 
 }
+
+export type ObservacaoGeralTDO = {
+	codigoEmpresa: string;
+	contratoEmpresa: string;
+	observacao: string;
+	cotacao:string;
+}
 export type HistoricoProdutosTDO = {
 	icms: number;
 	st: number;

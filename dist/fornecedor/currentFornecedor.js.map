@@ -1,0 +1,1 @@
+{"version":3,"file":"currentFornecedor.js","sourceRoot":"","sources":["../../src/fornecedor/currentFornecedor.ts"],"names":[],"mappings":";;;AAAA,2CAAuE;AAE1D,QAAA,iBAAiB,GAAG,IAAA,6BAAoB,EACpD,CAAC,IAAa,EAAE,OAAyB,EAAE,EAAE;IAC5C,MAAM,OAAO,GAAG,OAAO,CAAC,YAAY,EAAE,CAAC,UAAU,EAAE,CAAC;IACpD,OAAO,OAAO,CAAC,IAAI,CAAC;AAErB,CAAC,CAAC,CAAA"}

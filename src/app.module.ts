@@ -1,3 +1,4 @@
+import { ObservacaoCotacaoModule } from './observacao-cotacao/observacao-cotacao.module';
 import { CotacaoinfoModule } from './cotacaoinfo/cotacaoinfo.module';
 import { DescontoModule } from './desconto/desconto.module';
 import { UserModule } from './user/user.module';
@@ -22,6 +23,7 @@ import { FlagModule } from './Flags/flag.module';
 
 @Module({
   imports: [
+    ObservacaoCotacaoModule,
     CotacaoinfoModule,
     DescontoModule,
     UserModule,

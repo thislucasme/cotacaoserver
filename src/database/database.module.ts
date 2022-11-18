@@ -6,7 +6,15 @@ import { FornecedorDatabaseService } from './fornecedor-database.service';
 import { DatabaseCotacaoService } from './database-cotacao.service';
 
 @Module({
-    providers: [ApiDatabaseService, DatabaseCotacaoService, SiteSuccessDatabaseService, SuccessDatabaseService, FornecedorDatabaseService],
-    exports: [ApiDatabaseService, DatabaseCotacaoService, SiteSuccessDatabaseService, SuccessDatabaseService, FornecedorDatabaseService]
+    providers: [
+        ApiDatabaseService, DatabaseCotacaoService,
+        SiteSuccessDatabaseService, SuccessDatabaseService,
+        FornecedorDatabaseService
+    ],
+    exports: [
+        ApiDatabaseService, DatabaseCotacaoService,
+        SiteSuccessDatabaseService, SuccessDatabaseService,
+        FornecedorDatabaseService
+    ]
 })
 export class DatabaseModule { }
