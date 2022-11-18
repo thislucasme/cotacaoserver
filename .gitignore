@@ -8,6 +8,9 @@ node_modules/
 /.devcontainer
 *.code-workspace
 
+/.VSCodeCounter
+/test
+.env
 # Vim
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
