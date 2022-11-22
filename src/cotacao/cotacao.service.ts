@@ -263,8 +263,8 @@ export class CotacaoService {
 
 				const fullUrl = contratoEmpresa + numeroEmpresa + numeroCotacao + cnpjFornecedor + codFornecedor + dataVencimento;
 
-				 const prefixUrl = 'http://localhost:3005/painel/cotacao/' + fullUrl;
-				//const prefixUrl = 'https://cotacaocliente-i4zf6mjuu-thislucasme.vercel.app/painel/cotacao/' + fullUrl;
+				// const prefixUrl = 'http://localhost:3005/painel/cotacao/' + fullUrl;
+				const prefixUrl = 'https://cotacaocliente.vercel.app/painel/cotacao/' + fullUrl;
 //lucasd
 				//await enviar emaild
 				const envio = await this.sendEmailTo(payloadEnvioEmail.fornecedores[i].email, prefixUrl, empresa, payloadEnvioEmail.fornecedores[i].nome);
