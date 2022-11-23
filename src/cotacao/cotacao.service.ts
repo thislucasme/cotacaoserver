@@ -204,7 +204,7 @@ export class CotacaoService {
 
 		// const emails = [];
 		for (const cnpj of stringFornecedoresCriptografados) {
-			const raw = await knex.raw(`select hex(cgc2) as cnpj, nome2 as nome, email2 as email, codigo2 as codigoFornecedor from da02 where hex(cgc2) = '${cnpj}' limit 1`);
+			const raw = await knex.raw(`select hex(cgc2) as cnpj, nome2 as nome, emacot2 as email, codigo2 as codigoFornecedor from da02 where hex(cgc2) = '${cnpj}' limit 1`);
 			const snapshot = raw[0][0];
 			const fornecedor: FornecedorData = {
 				cnpj: cnpj,

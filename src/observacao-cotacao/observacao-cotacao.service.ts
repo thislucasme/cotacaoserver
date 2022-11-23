@@ -29,7 +29,7 @@ export class ObservacaoCotacaoService {
 
 
         const query = knex(createTableName('dece', empresaDescriptografada ?? ''))
-            .update({ observa6: observacao?.observacao })
+            .update({ obscot6: observacao?.observacao })
             .where("codigo6", "=", cotacaoDescriptografada)
 
         const result = await query;
@@ -45,7 +45,7 @@ export class ObservacaoCotacaoService {
         const cotacaoDescriptografada = await this.criptoService.decriptar(observacao.cotacao)
 
         const query = knex()
-            .select({ observacao: 'observa6' })
+            .select({ observacao: 'obscot6' })
             .from(createTableName('dece', empresaDescriptografada ?? ''))
             .where("codigo6", "=", cotacaoDescriptografada).limit(1)
 

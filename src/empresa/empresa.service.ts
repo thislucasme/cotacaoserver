@@ -36,7 +36,7 @@ export class EmpresaService {
 	async buscarFornecedor(contratoEmpresa: string, codigoEmpresa: string, codFornecedor: string) {
 		const knex = await this.empresaUtil.getConexaoCliente(contratoEmpresa);
 		const numeroFornecedorDescripted = await this.criptoService.publicDecript(codFornecedor, "Success2021");
-		const raw = await knex.raw(`select hex(cgc2) as cnpj, email2 as email, nome2 as nome from da02 where codigo2 = '${numeroFornecedorDescripted}' limit 1`);
+		const raw = await knex.raw(`select hex(cgc2) as cnpj, emacot2 as email, nome2 as nome from da02 where codigo2 = '${numeroFornecedorDescripted}' limit 1`);
 		const snapshot = raw[0][0];
 		const cnpj = await this.criptoService.publicDecript(snapshot?.cnpj, "Success2021");
 		const fornecedor = {
