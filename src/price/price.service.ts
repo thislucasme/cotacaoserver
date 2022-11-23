@@ -106,7 +106,7 @@ export class PriceService {
 		const knex = await this.getConexaoCliente(contrato)
 
 		// Aqui um exemplo de usar um objeto no select, acho que a sintaxe fica mais limpa
-		const result = await knex('deic' + empresa)
+		const query =  knex('deic' + empresa)
 			.leftJoin('dece' + empresa,
 				(k) => k.on(`dece${empresa}.codigo6`, `deic${empresa}.codigo6`).andOn(`dece${empresa}.item6`, `deic${empresa}.item6`)
 			)
@@ -130,12 +130,15 @@ export class PriceService {
 					mva: `deic${empresa}.mva6`,
 					codbarras: `deic${empresa}.codfabric6`,
 					formapagamento: `deic${empresa}.forpag6 `,
-					// desconto: `deic${empresa}.descot6`,
-					observacao: `deic${empresa}.observac6`,
+					desconto: `deic${empresa}.descont6`,
+					observacao: `dece${empresa}.observa6`,
 					prazo: `deic${empresa}.tempoent6`,
 					formaPagamento: `deic${empresa}.forpag6`
 				}
 			).debug(false)
+
+			console.log(query.toQuery())
+			const result = await query;
 
 
 		const array: Array<any> = result;
