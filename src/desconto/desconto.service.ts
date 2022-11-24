@@ -254,7 +254,7 @@ export class DescontoService {
 
 			itensTyped.forEach((item) => {
 				const query = knex1('deic' + empresa).update({
-					descot6: item.desconto,
+					descont6: item.desconto,
 					despesa6: item.frete,
 					forpag6: descontoTDO.formaPagamento
 				}).where('forneced6', fornecedor).andWhere('codigo6', codigoCotacao).andWhere("item6", item.item)
