@@ -245,3 +245,7 @@ export const createTableName = (tabela: string, empresa: string) => {
   console.log(tabela + empresa.toLowerCase())
   return tabela + empresa.toLowerCase();
 }
+export const retornaAliquotas = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number): number => {
+  return (custoProduto + frete - desconto) + ((custoProduto + frete - desconto) * ipi) + ((custoProduto + frete - desconto) * mva) * st;
+
+}

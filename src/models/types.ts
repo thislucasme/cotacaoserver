@@ -65,7 +65,7 @@ export type ObservacaoGeralTDO = {
 	codigoEmpresa: string;
 	contratoEmpresa: string;
 	observacao: string;
-	cotacao:string;
+	cotacao: string;
 }
 export type HistoricoProdutosTDO = {
 	icms: number;
@@ -119,4 +119,29 @@ export type GeneratedData = {
 export type GenerateIdDataByArray = {
 	array: number[];
 	last: string;
+}
+
+export type UpdateTDO = {
+	quantidade: number;
+	codigoInterno: string;
+	fornecedor: string;
+	codigo: string;
+	item: string;
+	descricao: string;
+	marca: string;
+	valorProduto: number;
+	frete: number;
+	st: number;
+	icms: number;
+	formaPagamento: number;
+	ipi: number;
+	mva: number;
+	status: boolean;
+	codbarras?: any;
+	data: string;
+	contratoEmpresa: string;
+	codigoEmpresa: string;
+	desconto: number;
+	observacao: string;
+	prazo: number;
 }

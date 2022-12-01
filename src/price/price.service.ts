@@ -98,6 +98,8 @@ export class PriceService {
 	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string) {
 
 		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
+		// const contratoE = await this.cripto.publicDecript(contrato, "Success2021");
+		// console.log(contratoE)
 		const codigoFornecedor = await this.cripto.publicDecript(codFornecedor, "Success2021");
 		const empresa = await this.cripto.publicDecript(codigoEmpresa, "Success2021");
 
@@ -127,7 +129,7 @@ export class PriceService {
 					st: `deic${empresa}.icmsst6`,
 					icms: `deic${empresa}.icms6`,
 					ipi: `deic${empresa}.ipi6`,
-					mva: `deic${empresa}.mva6`,
+					mva: `deic${empresa}.mva6` ?? 0,
 					codbarras: `deic${empresa}.codfabric6`,
 					formapagamento: `deic${empresa}.forpag6 `,
 					desconto: `deic${empresa}.descont6`,

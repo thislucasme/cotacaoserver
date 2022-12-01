@@ -6,14 +6,15 @@ import { EmpresautilService } from './empresa.util.service';
 
 @Injectable()
 export class EmpresaService {
+	
 	constructor(private empresaUtil: EmpresautilService, private criptoService: CriptoService) {
-
 	}
+
 	async buscarEmpresa(contratoEmpresa: string, codigoEmpresa: string, codFornecedor: string) {
 		const knex = await this.empresaUtil.getConexaoCliente(contratoEmpresa);
 
 		const numeroEmpresa = await this.criptoService.publicDecript(codigoEmpresa, "Success2021");
-
+		
 		const empresas = await knex('pe01').select([
 			'codigo',
 			'razao',

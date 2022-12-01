@@ -7,8 +7,8 @@ import { restaurar } from 'src/common/cripto';
 import { Empresa } from 'src/contrato/contrato.dto';
 import { CriptoService } from 'src/cripto/cripto.service';
 import { DatabaseCotacaoService } from 'src/database/database-cotacao.service';
-import { CotacaoTDOPayload, DadosSuccess, FornecedorData, PayloadEnvioEmail, PayloadSuccess } from 'src/models/types';
-import { createhtml } from 'src/util/util';
+import { CotacaoTDOPayload, DadosSuccess, FornecedorData, PayloadEnvioEmail, PayloadSuccess, UpdateTDO } from 'src/models/types';
+import { createhtml, retornaAliquotas } from 'src/util/util';
 import { ContratoService } from '../contrato/contrato.service';
 
 
@@ -40,12 +40,12 @@ export class CotacaoService {
 
 	}
 
-	async updateItemCotacao(itemCotacao: any) {
-
-		console.log("Forma pagamento", itemCotacao)
+	async updateItemCotacao(item: any) {
+		const itemCotacao: UpdateTDO = item;
 
 		const codigoFornecedor = await this.criptoService.publicDecript(itemCotacao.fornecedor, "Success2021");
 		const empresa = await this.criptoService.publicDecript(itemCotacao.codigoEmpresa, "Success2021");
+
 		//const knex = await this.contratoService.getConexaoClienteCache('1EDFFA7D75A6');
 		const knex1 = await this.contratoService.getConexaoCliente(itemCotacao.contratoEmpresa);
 
@@ -62,7 +62,8 @@ export class CotacaoService {
 			deic${empresa}.icms6 = ${itemCotacao.icms},
 			deic${empresa}.ipi6 = ${itemCotacao.ipi},
 			deic${empresa}.forpag6 = ${itemCotacao.formaPagamento},
-			deic${empresa}.tempoent6 = ${itemCotacao.prazo}
+			deic${empresa}.tempoent6 = ${itemCotacao.prazo},
+			deic${empresa}.vlrcuspro6 = ${retornaAliquotas(itemCotacao?.valorProduto, itemCotacao?.frete, itemCotacao?.desconto, itemCotacao?.ipi, itemCotacao?.mva, itemCotacao?.st).toFixed(3)}
 			where deic${empresa}.forneced6 = '${codigoFornecedor}'
 			and deic${empresa}.item6 = '${itemCotacao.item}'
 			and dece${empresa}.item6 = '${itemCotacao.item}' and deic${empresa}.produto6 = '${itemCotacao.codigoInterno}' and dece${empresa}.produto6 = '${itemCotacao.codigoInterno}';`
@@ -265,7 +266,7 @@ export class CotacaoService {
 
 				// const prefixUrl = 'http://localhost:3005/painel/cotacao/' + fullUrl;
 				const prefixUrl = 'https://cotacaocliente.vercel.app/painel/cotacao/' + fullUrl;
-//lucasd
+				//lucasd
 				//await enviar emaild
 				const envio = await this.sendEmailTo(payloadEnvioEmail.fornecedores[i].email, prefixUrl, empresa, payloadEnvioEmail.fornecedores[i].nome);
 				const accepted = envio.accepted[0] === payloadEnvioEmail.fornecedores[i].email;

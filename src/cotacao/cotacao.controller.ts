@@ -24,8 +24,7 @@ export class CotacaoController {
 	async receber(@Body() dadosSuccess: any, @Res() res: Response) {
 		const result = await this.cotacaoService.enviarEmailParaFornecedores(dadosSuccess);
 
-		//console.log(result)
-
+		console.log(8*2)
 		if (result.empresa.contratoEmpresaSuccess === null) {
 				throw new NotFoundException(`Contrato não existe na base de dados`)
 		} else {

@@ -15,4 +15,4 @@ import { CriptoModule } from 'src/cripto/cripto.module';
     controllers: [PriceController],
     providers: [PriceService, ClienteService, SiteSuccessDatabaseService, SuccessDatabaseService, DatabaseCotacaoService, CotacaoService, ContratoService],
 })
-export class PriceModule { }
+export class PriceModule {}
