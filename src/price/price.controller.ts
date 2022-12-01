@@ -40,7 +40,7 @@ export class PriceController {
 			}
 		}
 
-		return [data, total, totalDesconto, frete, [{ "isReady": isReady }], [{ "formaPagamento": data[0][0].formapagamento }], [{ "numeroCotacao": data[0][0].codigo }]];
+		return [data, total, totalDesconto, frete, [{ "isReady": isReady }], [{ "formaPagamento": data[0][0]?.formapagamento }], [{ "numeroCotacao": data[0][0]?.codigo }]];
 	}
 	@Post('update')
 	async updateItemCotacao(@Body() body: types.ItemCotacaoTDO) {

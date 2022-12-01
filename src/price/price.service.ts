@@ -108,7 +108,7 @@ export class PriceService {
 		const knex = await this.getConexaoCliente(contrato)
 
 		// Aqui um exemplo de usar um objeto no select, acho que a sintaxe fica mais limpa
-		const query =  knex('deic' + empresa)
+		const query = knex('deic' + empresa)
 			.leftJoin('dece' + empresa,
 				(k) => k.on(`dece${empresa}.codigo6`, `deic${empresa}.codigo6`).andOn(`dece${empresa}.item6`, `deic${empresa}.item6`)
 			)
@@ -125,22 +125,22 @@ export class PriceService {
 					item: `deic${empresa}.item6`,
 					produto: `deic${empresa}.produto6`,
 					valordoproduto: `deic${empresa}.custo6`,
-					frete: `deic${empresa}.despesa6`,
-					st: `deic${empresa}.icmsst6`,
-					icms: `deic${empresa}.icms6`,
-					ipi: `deic${empresa}.ipi6`,
-					mva: `deic${empresa}.mva6` ?? 0,
+					frete: knex.raw(`ifnull(deic${empresa}.despesa6, 0)`),
+					st: knex.raw(`ifnull(deic${empresa}.icmsst6, 0)`),
+					icms: knex.raw(`ifnull(deic${empresa}.icms6, 0)`),
+					ipi: knex.raw(`ifnull(deic${empresa}.ipi6, 0)`),
+					mva: knex.raw(`ifnull(deic${empresa}.mva6, 0)`),
 					codbarras: `deic${empresa}.codfabric6`,
-					formapagamento: `deic${empresa}.forpag6 `,
-					desconto: `deic${empresa}.descont6`,
+					formapagamento: knex.raw(`ifnull(deic${empresa}.forpag6, 0)`),
+					desconto: knex.raw(`ifnull(deic${empresa}.descont6, 0)`),
 					observacao: `dece${empresa}.observa6`,
 					prazo: `deic${empresa}.tempoent6`,
 					formaPagamento: `deic${empresa}.forpag6`
 				}
 			).debug(false)
 
-			console.log(query.toQuery())
-			const result = await query;
+		console.log(query.toQuery())
+		const result = await query;
 
 
 		const array: Array<any> = result;
@@ -181,7 +181,7 @@ export class PriceService {
 		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
 
 		const result = await knex.raw(
-			`select ifnull(sum(deic.custo6 * dece.qtd6 + ifnull(deic.despesa6, 0)), 0) as total  from dece${empresa} as dece,
+			`select ifnull(sum(deic.vlrcuspro6 * dece.qtd6), 0) as total  from dece${empresa} as dece,
 			deic${empresa} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);
