@@ -1,4 +1,6 @@
 import { Empresa } from "src/contrato/contrato.dto"
+const ABNT_5891_1977 = require('arredondamentoabnt').ABNT_5891_1977
+const abnt = new ABNT_5891_1977(3);
 
 export const createhtml = (url: string, empresa: Empresa, fornecedor: string) => {
   return (
@@ -246,6 +248,15 @@ export const createTableName = (tabela: string, empresa: string) => {
   return tabela + empresa.toLowerCase();
 }
 export const retornaAliquotas = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number): number => {
-  return (custoProduto + frete - desconto) + ((custoProduto + frete - desconto) * ipi) + ((custoProduto + frete - desconto) * mva) * st;
+  const custoBruto = custoProduto + frete - desconto;
 
+  const vlrIpi = custoBruto * ipi
+
+  const bcIcmsST = (custoBruto * mva) + custoBruto
+
+  const vlrSt = bcIcmsST * st
+  console.log(custoBruto + vlrIpi + vlrSt)
+  const formatado = abnt.arredonda(custoBruto + vlrIpi + vlrSt)
+  console.log(Number(formatado))
+  return Number(formatado)
 }
