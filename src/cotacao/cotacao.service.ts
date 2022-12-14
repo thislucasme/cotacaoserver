@@ -57,7 +57,7 @@ export class CotacaoService {
 			deic${empresa}.datlan6 = '${itemCotacao.data}',
 			deic${empresa}.descont6  = ${itemCotacao.desconto},
 			deic${empresa}.despesa6  = ${itemCotacao.frete},
-			dece${empresa}.observa6 = '${itemCotacao.observacao}',
+			deic${empresa}.observac6 = '${itemCotacao.observacao}',
 			deic${empresa}.icmsst6 = ${itemCotacao.st},
 			deic${empresa}.icms6 = ${itemCotacao.icms},
 			deic${empresa}.ipi6 = ${itemCotacao.ipi},

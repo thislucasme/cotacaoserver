@@ -133,7 +133,7 @@ export class PriceService {
 					codbarras: `deic${empresa}.codfabric6`,
 					formapagamento: knex.raw(`ifnull(deic${empresa}.forpag6, 0)`),
 					desconto: knex.raw(`ifnull(deic${empresa}.descont6, 0)`),
-					observacao: `dece${empresa}.observa6`,
+					observacao: `deic${empresa}.observac6`,
 					prazo: `deic${empresa}.tempoent6`,
 					formaPagamento: `deic${empresa}.forpag6`
 				}

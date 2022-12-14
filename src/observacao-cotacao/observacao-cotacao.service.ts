@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ContratoService } from 'src/contrato/contrato.service';
 import { CriptoService } from 'src/cripto/cripto.service';
@@ -23,41 +23,43 @@ export class ObservacaoCotacaoService {
 
     async salvarObservacao(observacao: ObservacaoGeralTDO) {
 
-        const knex = await this.empresaUtil.getConexaoCliente(observacao?.contratoEmpresa);
-        const empresaDescriptografada = await this.criptoService.decriptar(observacao.codigoEmpresa)
-        const cotacaoDescriptografada = await this.criptoService.decriptar(observacao.cotacao)
+        // const knex = await this.empresaUtil.getConexaoCliente(observacao?.contratoEmpresa);
+        // const empresaDescriptografada = await this.criptoService.decriptar(observacao.codigoEmpresa)
+        // const cotacaoDescriptografada = await this.criptoService.decriptar(observacao.cotacao)
 
 
-        const query = knex(createTableName('dece', empresaDescriptografada ?? ''))
-            .update({ obscot6: observacao?.observacao })
-            .where("codigo6", "=", cotacaoDescriptografada)
+        // const query = knex(createTableName('dece', empresaDescriptografada ?? ''))
+        //     .update({ obscot6: observacao?.observacao })
+        //     .where("codigo6", "=", cotacaoDescriptografada)
 
-        const result = await query;
+        // const result = await query;
 
-        if (result === 0) {
-            throw new BadRequestException("Ocorreu um erro ao salvar a observação.")
-        }
+        // if (result === 0) {
+        //     throw new BadRequestException("Ocorreu um erro ao salvar a observação.")
+        // }
+        throw new BadGatewayException('rota vazia')
     }
 
     async retornaObservacao(observacao: ObservacaoGeralTDO) {
-        const knex = await this.empresaUtil.getConexaoCliente(observacao?.contratoEmpresa);
-        const empresaDescriptografada = await this.criptoService.decriptar(observacao.codigoEmpresa)
-        const cotacaoDescriptografada = await this.criptoService.decriptar(observacao.cotacao)
+    //     const knex = await this.empresaUtil.getConexaoCliente(observacao?.contratoEmpresa);
+    //     const empresaDescriptografada = await this.criptoService.decriptar(observacao.codigoEmpresa)
+    //     const cotacaoDescriptografada = await this.criptoService.decriptar(observacao.cotacao)
 
-        const query = knex()
-            .select({ observacao: 'obscot6' })
-            .from(createTableName('dece', empresaDescriptografada ?? ''))
-            .where("codigo6", "=", cotacaoDescriptografada).limit(1)
+    //     const query = knex()
+    //         .select({ observacao: 'obscot6' })
+    //         .from(createTableName('dece', empresaDescriptografada ?? ''))
+    //         .where("codigo6", "=", cotacaoDescriptografada).limit(1)
 
-        console.log(query.toQuery())
+    //     console.log(query.toQuery())
 
-        const result = await query;
+    //     const result = await query;
 
-        if (result.length === 0) {
-            throw new HttpException('NoCotent', HttpStatus.NO_CONTENT)
-        }
+    //     if (result.length === 0) {
+    //         throw new HttpException('NoCotent', HttpStatus.NO_CONTENT)
+    //     }
 
        
-        return result[0];
-    }
+    //     return result[0];
+    throw new BadGatewayException('rota vazia')
+     }
 }
