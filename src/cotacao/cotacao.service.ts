@@ -8,7 +8,7 @@ import { Empresa } from 'src/contrato/contrato.dto';
 import { CriptoService } from 'src/cripto/cripto.service';
 import { DatabaseCotacaoService } from 'src/database/database-cotacao.service';
 import { CotacaoTDOPayload, DadosSuccess, FornecedorData, PayloadEnvioEmail, PayloadSuccess, UpdateTDO } from 'src/models/types';
-import { createhtml, retornaAliquotas } from 'src/util/util';
+import { createhtml, createTableName, createTableNameWithBoolean, retornaAliquotas } from 'src/util/util';
 import { ContratoService } from '../contrato/contrato.service';
 
 
@@ -128,7 +128,7 @@ export class CotacaoService {
 		}
 		return true;
 	}
-	async enviarEmailParaFornecedores(dados: PayloadSuccess): Promise<PayloadEnvioEmail | null> {
+	async enviarEmailParaFornecedores(dados: PayloadSuccess, compartilhada:boolean): Promise<PayloadEnvioEmail | null> {
 
 		//verifica se a data recebida está no formato válido
 
@@ -170,13 +170,23 @@ export class CotacaoService {
 		const codigoCotacaoDescriptografado = await this.criptoService.publicDecript(dados.empresa.numeroCotacao, "Success2021");
 		const codigoEmpresaDescriptografado = await this.criptoService.publicDecript(dados.empresa.numeroEmpresa, "Success2021");
 
+		const dece = createTableNameWithBoolean(
+			'dece',
+			codigoEmpresaDescriptografado,
+			compartilhada);
 
-		const cotacao = await knex.raw(`select codigo6 as codigo from dece${codigoEmpresaDescriptografado} where codigo6 =  '${codigoCotacaoDescriptografado}' and sr_deleted != 'T' limit 1;`);
+		const cotacao = await knex.raw(
+			`select codigo6 as codigo from ${dece}
+		where codigo6 =  '${codigoCotacaoDescriptografado}'
+		and sr_deleted != 'T' limit 1;`);
+
 		const snapshot = cotacao[0][0];
 		if (snapshot) {
 
 		} else {
-			throw new NotFoundException(`Cotação com o número ${codigoCotacaoDescriptografado} não existe`)
+			throw new NotFoundException(
+				`Cotação com o número ${codigoCotacaoDescriptografado} não existe`
+				)
 			const payloadEnvioEmail: PayloadEnvioEmail = {
 				empresa: {
 					contratoEmpresaSuccess: null,
@@ -205,7 +215,9 @@ export class CotacaoService {
 
 		// const emails = [];
 		for (const cnpj of stringFornecedoresCriptografados) {
-			const raw = await knex.raw(`select hex(cgc2) as cnpj, nome2 as nome, emacot2 as email, codigo2 as codigoFornecedor from da02 where hex(cgc2) = '${cnpj}' limit 1`);
+			const raw = await knex.raw(
+				`select hex(cgc2) as cnpj, nome2 as nome, emacot2 as email,
+				codigo2 as codigoFornecedor from da02 where hex(cgc2) = '${cnpj}' limit 1`);
 			const snapshot = raw[0][0];
 			const fornecedor: FornecedorData = {
 				cnpj: cnpj,

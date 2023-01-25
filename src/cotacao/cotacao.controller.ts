@@ -3,13 +3,14 @@ import { Response } from 'express';
 import { restaurar } from 'src/common/cripto';
 import { CotacaoService } from './cotacao.service';
 import * as moment from 'moment';
+import { CompartilhadaService } from 'src/compartilhada/compartilhada.service';
 moment.locale('pt-br')
 
 //testes
 
 @Controller("cotacao")
 export class CotacaoController {
-	constructor(private cotacaoService: CotacaoService) { }
+	constructor(private cotacaoService: CotacaoService,private CompartilhadaService:CompartilhadaService ) { }
 
 
 	@Get('enviar-email')
@@ -22,9 +23,9 @@ export class CotacaoController {
 
 	@Post('/realizar-envio')
 	async receber(@Body() dadosSuccess: any, @Res() res: Response) {
-		const result = await this.cotacaoService.enviarEmailParaFornecedores(dadosSuccess);
-
-		console.log(8*2)
+		const compartilhada = await this.CompartilhadaService.retornaEcompartilhada(dadosSuccess.empresa.contratoEmpresaSuccess, dadosSuccess.empresa.numeroEmpresa)
+		const result = await this.cotacaoService.enviarEmailParaFornecedores(dadosSuccess, compartilhada);
+	
 		if (result.empresa.contratoEmpresaSuccess === null) {
 				throw new NotFoundException(`Contrato não existe na base de dados`)
 		} else {

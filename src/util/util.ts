@@ -244,8 +244,10 @@ a[x-apple-data-detectors] {
 }
 
 export const createTableName = (tabela: string, empresa: string) => {
-  console.log(tabela + empresa.toLowerCase())
   return tabela + empresa.toLowerCase();
+}
+export const createTableNameWithBoolean = (tabela: string, empresa: string, compartilhada: boolean) => {
+  return compartilhada ? tabela : tabela + empresa.toLowerCase();
 }
 export const retornaAliquotas = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number): number => {
   const custoBruto = custoProduto + frete - desconto;
