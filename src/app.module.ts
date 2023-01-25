@@ -20,9 +20,11 @@ import { CriptoModule } from 'src/cripto/cripto.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { FlagModule } from './Flags/flag.module';
+import { CompartilhadaModule } from './compartilhada/compartilhada.module';
 
 @Module({
   imports: [
+    CompartilhadaModule,
     ObservacaoCotacaoModule,
     CotacaoinfoModule,
     DescontoModule,
