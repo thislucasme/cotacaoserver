@@ -2,20 +2,23 @@ import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
 import { CotacaoTDOPayload } from 'src/models/types';
 import { Response } from 'express';
 import { FlagService } from './flag.service';
+import { CompartilhadaService } from 'src/compartilhada/compartilhada.service';
 
 @Controller('flag')
 export class FlagController {
-	constructor(private flagService: FlagService) { }
+	constructor(private flagService: FlagService, private compartilhadaService:CompartilhadaService) { }
 
 	@Post('verificar-flags')
 	async verificarFlags(@Body() body: CotacaoTDOPayload, @Res() res: Response) {
-		const result = await this.flagService.consultarFlags(body);
+		const compartilhada = await this.compartilhadaService.retornaEcompartilhada(body?.contratoEmpresa, body?.codigoEmpresa)
+		const result = await this.flagService.consultarFlags(body, compartilhada);
 		res.status(HttpStatus.ACCEPTED).send(result)
 	}
 
 	@Post('finalizar-cotacao')
 	async finalizarCotacao(@Body() body: CotacaoTDOPayload, @Res() res: Response) {
-		const result = await this.flagService.finalizarCotacao(body);
+		const compartilhada = await this.compartilhadaService.retornaEcompartilhada(body?.contratoEmpresa, body?.codigoEmpresa)
+		const result = await this.flagService.finalizarCotacao(body, compartilhada);
 
 		if (result.data === null) {
 			if (result.code === 404) {

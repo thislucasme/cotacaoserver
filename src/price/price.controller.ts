@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ClienteService } from 'src/cliente/cliente.service';
+import { CompartilhadaService } from 'src/compartilhada/compartilhada.service';
 import { CotacaoService } from 'src/cotacao/cotacao.service';
 import * as types from 'src/models/types';
 import { CotacaoTDOPayload } from 'src/models/types';
@@ -7,13 +8,19 @@ import { PriceService } from './price.service';
 
 @Controller('price')
 export class PriceController {
-	constructor(private clienteService: ClienteService, private cotacaoService: CotacaoService, private priceService: PriceService) { }
+	constructor(private clienteService: ClienteService,
+		private cotacaoService: CotacaoService,
+		private priceService: PriceService,
+		private compartilhadaService:CompartilhadaService) { }
 
 
 	@Get('findby/:codCotacao/:codFornecedor/:codContrato/:codEmpresa')
 	async getAllItensFromCotacao(
 		@Param('codCotacao') codCotacao: string, @Param('codFornecedor')
 		codFornecedor: string, @Param('codEmpresa') codEmpresa: string, @Param('codContrato') codContrato: string) {
+			console.log(codContrato)
+
+		const compartilhada = await this.compartilhadaService.retornaEcompartilhada(codContrato, codEmpresa)
 
 		const body: types.CotacaoTDOPayload = {
 			codigo: codCotacao,
@@ -25,10 +32,10 @@ export class PriceController {
 
 
 
-		const total = await this.priceService.calcularTotal(body, false);
-		const frete = await this.priceService.calcularFrete(body);
-		const data = await this.priceService.getItensCotacao(codCotacao, codFornecedor, codContrato, codEmpresa)
-		const totalDesconto = await this.priceService.calcularTotalDesconto(body);
+		const total = await this.priceService.calcularTotal(body, false, compartilhada);
+		const frete = await this.priceService.calcularFrete(body, compartilhada);
+		const data = await this.priceService.getItensCotacao(codCotacao, codFornecedor, codContrato, codEmpresa, compartilhada)
+		const totalDesconto = await this.priceService.calcularTotalDesconto(body, compartilhada);
 
 		const dataTratado = data[0];
 		let isReady = true;
@@ -44,8 +51,9 @@ export class PriceController {
 	}
 	@Post('update')
 	async updateItemCotacao(@Body() body: types.ItemCotacaoTDO) {
+		const compartilhada = await this.compartilhadaService.retornaEcompartilhada(body?.contratoEmpresa, body?.codigoEmpresa)
 		try {
-			const result = await this.cotacaoService.updateItemCotacao(body);
+			const result = await this.cotacaoService.updateItemCotacao(body, compartilhada);
 			return result;
 		} catch (e) {
 			return { error: e }

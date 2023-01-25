@@ -17,6 +17,7 @@ import PdfPrinter from 'pdfmake';
 
 
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { createTableNameWithBoolean } from 'src/util/util';
 
 const ABNT_5891_1977 = require('arredondamentoabnt').ABNT_5891_1977
 const abnt = new ABNT_5891_1977(2);
@@ -137,7 +138,7 @@ export class DescontoService {
 		return parsedEmpresas
 	}
 
-	async adicionarDescontoDev(descontoTDO: DescontoTDO) {
+	async adicionarDescontoDev(descontoTDO: DescontoTDO, compartilhada: boolean) {
 
 		//cria a conexão 
 		const knex1 = await this.getConexaoCliente(descontoTDO.dados.contratoEmpresa)
@@ -146,9 +147,15 @@ export class DescontoService {
 		const fornecedor = await this.cripto.publicDecript(descontoTDO.dados.fornecedor, "Success2021")
 		const codigoCotacao = await this.cripto.publicDecript(descontoTDO.dados.codigo, "Success2021")
 
+
+
+		const deic = createTableNameWithBoolean(
+			'deic',
+			empresa,
+			compartilhada);
 		/*buscar no banco e somar o valor de custo de todos os itens para descobrir quanto
 			 em percentual é o valor do desconto que está sendo passado */
-		const itens = await this.priceService.getItensCotacao(descontoTDO.dados.codigo, descontoTDO.dados.fornecedor, descontoTDO.dados.contratoEmpresa, descontoTDO.dados.codigoEmpresa)
+		const itens = await this.priceService.getItensCotacao(descontoTDO.dados.codigo, descontoTDO.dados.fornecedor, descontoTDO.dados.contratoEmpresa, descontoTDO.dados.codigoEmpresa, compartilhada)
 		const itensCotacao: any[] = itens[0];
 
 
@@ -253,7 +260,7 @@ export class DescontoService {
 			const queries = [];
 
 			itensTyped.forEach((item) => {
-				const query = knex1('deic' + empresa).update({
+				const query = knex1(deic).update({
 					descont6: item.desconto,
 					despesa6: item.frete,
 					forpag6: descontoTDO.formaPagamento
@@ -394,17 +401,29 @@ export class DescontoService {
 		//console.log(abnt.arredonda(desconto - value))
 	}
 
-	async adicionarDesconto(descontoTDO: DescontoTDO) {
+	async adicionarDesconto(descontoTDO: DescontoTDO, compartilhada: boolean) {
 
 
 		const knex1 = await this.getConexaoCliente(descontoTDO.dados.contratoEmpresa)
 		const empresa = await this.cripto.publicDecript(descontoTDO.dados.codigoEmpresa, "Success2021")
 		const fornecedor = await this.cripto.publicDecript(descontoTDO.dados.fornecedor, "Success2021")
 		const codigoCotacao = await this.cripto.publicDecript(descontoTDO.dados.codigo, "Success2021")
+		const dece = createTableNameWithBoolean(
+			'dece',
+			empresa,
+			compartilhada);
 
+		const deic = createTableNameWithBoolean(
+			'deic',
+			empresa,
+			compartilhada);
 
-		const totalItens = await knex1.schema.raw(`select count(item6) as total from deic${empresa} where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}';`);
-		const ids = await knex1.schema.raw(`select item6 from deic${empresa} where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}';`);
+		const totalItens = await knex1.schema.raw(
+			`select count(item6) as total from ${deic} where codigo6 =
+			'${codigoCotacao}'  and forneced6 = '${fornecedor}';`);
+		const ids = await knex1.schema.raw(
+			`select item6 from ${deic} where codigo6 = '${codigoCotacao}'
+			and forneced6 = '${fornecedor}';`);
 		// console.log(ids[0])
 
 		const arrayGenerated: GeneratedData = await this.utilService.generateArrayOfValues(descontoTDO, totalItens);
@@ -420,21 +439,20 @@ export class DescontoService {
 		//console.log(arrayGenerated)
 
 		const frete = await knex1.schema.raw(
-			`update deic${empresa} as itens set descont6 = ${arrayGeneratedDesconto.first},
+			`update ${deic} as itens set descont6 = ${arrayGeneratedDesconto.first},
 			despesa6 = ${arrayGenerated.first},
 			forpag6  = ${descontoTDO.formaPagamento}
-				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}' and item6 != ${arrayIdGenerated.last}; `
-		);
+				where codigo6 = '${codigoCotacao}'  and
+				forneced6 = '${fornecedor}' and item6 != ${arrayIdGenerated.last}; `
+		);	
 
 		const desconto = await knex1.schema.raw(
-			`update deic${empresa} as itens set descont6 = ${arrayGeneratedDesconto.last},
+			`update ${deic} as itens set descont6 = ${arrayGeneratedDesconto.last},
 			despesa6 = ${arrayGenerated.last},
 			forpag6  = ${descontoTDO.formaPagamento}
 				where codigo6 = '${codigoCotacao}'  and forneced6 = '${fornecedor}' and item6 = ${arrayIdGenerated.last}; `
 		)
-		console.log("=========")
-		console.log(descontoTDO)
-		console.log("=========")
+
 
 		// return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true, totalCamposAtualizados: result[0].affectedRows }
 		return { statusCode: HttpStatus.CREATED, message: `201 Created`, success: true }

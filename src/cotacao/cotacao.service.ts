@@ -40,33 +40,41 @@ export class CotacaoService {
 
 	}
 
-	async updateItemCotacao(item: any) {
+	async updateItemCotacao(item: any, compartilhada:boolean) {
 		const itemCotacao: UpdateTDO = item;
 
 		const codigoFornecedor = await this.criptoService.publicDecript(itemCotacao.fornecedor, "Success2021");
 		const empresa = await this.criptoService.publicDecript(itemCotacao.codigoEmpresa, "Success2021");
+		const dece = createTableNameWithBoolean(
+			'dece',
+			empresa,
+			compartilhada);
 
+		const deic = createTableNameWithBoolean(
+			'deic',
+			empresa,
+			compartilhada);
 		//const knex = await this.contratoService.getConexaoClienteCache('1EDFFA7D75A6');
 		const knex1 = await this.contratoService.getConexaoCliente(itemCotacao.contratoEmpresa);
 
 
 
 		const result = await knex1.schema.raw(
-			`UPDATE deic${empresa}, dece${empresa} SET deic${empresa}.custo6 = ${itemCotacao.valorProduto},
-			deic${empresa}.mva6 = ${itemCotacao.mva},
-			deic${empresa}.datlan6 = '${itemCotacao.data}',
-			deic${empresa}.descont6  = ${itemCotacao.desconto},
-			deic${empresa}.despesa6  = ${itemCotacao.frete},
-			deic${empresa}.observac6 = '${itemCotacao.observacao}',
-			deic${empresa}.icmsst6 = ${itemCotacao.st},
-			deic${empresa}.icms6 = ${itemCotacao.icms},
-			deic${empresa}.ipi6 = ${itemCotacao.ipi},
-			deic${empresa}.forpag6 = ${itemCotacao.formaPagamento},
-			deic${empresa}.tempoent6 = ${itemCotacao.prazo},
-			deic${empresa}.vlrcuspro6 = ${retornaAliquotas(itemCotacao?.valorProduto, itemCotacao?.frete, itemCotacao?.desconto, itemCotacao?.ipi, itemCotacao?.mva, itemCotacao?.st).toFixed(3)}
-			where deic${empresa}.forneced6 = '${codigoFornecedor}'
-			and deic${empresa}.item6 = '${itemCotacao.item}'
-			and dece${empresa}.item6 = '${itemCotacao.item}' and deic${empresa}.produto6 = '${itemCotacao.codigoInterno}' and dece${empresa}.produto6 = '${itemCotacao.codigoInterno}';`
+			`UPDATE ${deic}, ${dece} SET ${deic}.custo6 = ${itemCotacao.valorProduto},
+			${deic}.mva6 = ${itemCotacao.mva},
+			${deic}.datlan6 = '${itemCotacao.data}',
+			${deic}.descont6  = ${itemCotacao.desconto},
+			${deic}.despesa6  = ${itemCotacao.frete},
+			${deic}.observac6 = '${itemCotacao.observacao}',
+			${deic}.icmsst6 = ${itemCotacao.st},
+			${deic}.icms6 = ${itemCotacao.icms},
+			${deic}.ipi6 = ${itemCotacao.ipi},
+			${deic}.forpag6 = ${itemCotacao.formaPagamento},
+			${deic}.tempoent6 = ${itemCotacao.prazo},
+			${deic}.vlrcuspro6 = ${retornaAliquotas(itemCotacao?.valorProduto, itemCotacao?.frete, itemCotacao?.desconto, itemCotacao?.ipi, itemCotacao?.mva, itemCotacao?.st).toFixed(3)}
+			where ${deic}.forneced6 = '${codigoFornecedor}'
+			and ${deic}.item6 = '${itemCotacao.item}'
+			and ${dece}.item6 = '${itemCotacao.item}' and ${deic}.produto6 = '${itemCotacao.codigoInterno}' and ${dece}.produto6 = '${itemCotacao.codigoInterno}';`
 		).then((result) => {
 			console.log(result)
 		}).catch(result => {

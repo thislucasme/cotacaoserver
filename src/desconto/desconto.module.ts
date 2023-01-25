@@ -10,10 +10,12 @@ import { DatabaseCotacaoService } from 'src/database/database-cotacao.service';
 import { CotacaoService } from 'src/cotacao/cotacao.service';
 import { PriceService } from 'src/price/price.service';
 import { UtilService } from './util.service';
+import { CompartilhadaModule } from 'src/compartilhada/compartilhada.module';
+import { CompartilhadaService } from 'src/compartilhada/compartilhada.service';
 
 @Module({
-    imports: [CriptoModule],
+    imports: [CriptoModule, CompartilhadaModule],
     controllers: [DescontoController],
-    providers: [UtilService, DescontoService, PriceService, ClienteService, SiteSuccessDatabaseService, SuccessDatabaseService, DatabaseCotacaoService, CotacaoService, ContratoService],
+    providers: [CompartilhadaService,UtilService, DescontoService, PriceService, ClienteService, SiteSuccessDatabaseService, SuccessDatabaseService, DatabaseCotacaoService, CotacaoService, ContratoService],
 })
 export class DescontoModule { }

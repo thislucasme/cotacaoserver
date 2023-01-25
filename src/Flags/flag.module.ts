@@ -9,10 +9,12 @@ import { CriptoService } from 'src/cripto/cripto.service';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
 import { SuccessDatabaseService } from 'src/database/success-database.service';
 import { FlagutilService } from './flagutil.service';
+import { CompartilhadaModule } from 'src/compartilhada/compartilhada.module';
+import { CompartilhadaService } from 'src/compartilhada/compartilhada.service';
 
 @Module({
-    imports: [CotacaoModule],
+    imports: [CotacaoModule, CompartilhadaModule],
     controllers: [FlagController],
-    providers: [FlagService, FlagutilService, CotacaoService, DatabaseCotacaoService, ContratoService, CriptoService, SiteSuccessDatabaseService, SuccessDatabaseService],
+    providers: [CompartilhadaService, FlagService, FlagutilService, CotacaoService, DatabaseCotacaoService, ContratoService, CriptoService, SiteSuccessDatabaseService, SuccessDatabaseService],
 })
 export class FlagModule { }

@@ -9,10 +9,15 @@ import { DatabaseCotacaoService } from 'src/database/database-cotacao.service';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
 import { SuccessDatabaseService } from 'src/database/success-database.service';
 import { CriptoModule } from 'src/cripto/cripto.module';
+import { CompartilhadaModule } from 'src/compartilhada/compartilhada.module';
+import { CompartilhadaService } from 'src/compartilhada/compartilhada.service';
 
 @Module({
-    imports: [CriptoModule],
+    imports: [CriptoModule, CompartilhadaModule],
     controllers: [PriceController],
-    providers: [PriceService, ClienteService, SiteSuccessDatabaseService, SuccessDatabaseService, DatabaseCotacaoService, CotacaoService, ContratoService],
+    providers: [PriceService, ClienteService,
+        SiteSuccessDatabaseService, SuccessDatabaseService,
+        DatabaseCotacaoService, CotacaoService, ContratoService,
+    CompartilhadaService],
 })
 export class PriceModule {}

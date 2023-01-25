@@ -6,6 +6,7 @@ import { CriptoService } from 'src/cripto/cripto.service';
 import { getOrCreateKnexInstance } from 'src/database/knexCache';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
 import { CotacaoTDOPayload } from 'src/models/types';
+import { createTableNameWithBoolean } from 'src/util/util';
 const ABNT_5891_1977 = require('arredondamentoabnt').ABNT_5891_1977
 const abnt = new ABNT_5891_1977(2);
 @Injectable()
@@ -95,7 +96,7 @@ export class PriceService {
 	}
 
 
-	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string) {
+	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string, compartilhada:boolean) {
 
 		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
 		// const contratoE = await this.cripto.publicDecript(contrato, "Success2021");
@@ -105,37 +106,47 @@ export class PriceService {
 
 		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
 
+		const dece = createTableNameWithBoolean(
+			'dece',
+			empresa,
+			compartilhada);
+
+		const deic = createTableNameWithBoolean(
+			'deic',
+			empresa,
+			compartilhada);
+
 		const knex = await this.getConexaoCliente(contrato)
 
 		// Aqui um exemplo de usar um objeto no select, acho que a sintaxe fica mais limpa
-		const query = knex('deic' + empresa)
-			.leftJoin('dece' + empresa,
-				(k) => k.on(`dece${empresa}.codigo6`, `deic${empresa}.codigo6`).andOn(`dece${empresa}.item6`, `deic${empresa}.item6`)
+		const query = knex(deic)
+			.leftJoin(dece,
+				(k) => k.on(`${dece}.codigo6`, `${deic}.codigo6`).andOn(`${dece}.item6`, `${deic}.item6`)
 			)
-			.where(`deic${empresa}.forneced6`, codigoFornecedor)
-			.andWhere(`deic${empresa}.codigo6`, codigoCotacao)
+			.where(`${deic}.forneced6`, codigoFornecedor)
+			.andWhere(`${deic}.codigo6`, codigoCotacao)
 			.select(
 				{
 					//Aqui você termina de colocar as colunas que você quer, lembrando que como tem um join tem que incluir o nome da tabela antes
-					quantidade: `dece${empresa}.qtd6`,
-					marca: `dece${empresa}.marca6`,
-					descricao: `dece${empresa}.descricao6`,
-					data: `deic${empresa}.data6`,
-					codigo: `deic${empresa}.codigo6`,
-					item: `deic${empresa}.item6`,
-					produto: `deic${empresa}.produto6`,
-					valordoproduto: `deic${empresa}.custo6`,
-					frete: knex.raw(`ifnull(deic${empresa}.despesa6, 0)`),
-					st: knex.raw(`ifnull(deic${empresa}.icmsst6, 0)`),
-					icms: knex.raw(`ifnull(deic${empresa}.icms6, 0)`),
-					ipi: knex.raw(`ifnull(deic${empresa}.ipi6, 0)`),
-					mva: knex.raw(`ifnull(deic${empresa}.mva6, 0)`),
-					codbarras: `deic${empresa}.codfabric6`,
-					formapagamento: knex.raw(`ifnull(deic${empresa}.forpag6, 0)`),
-					desconto: knex.raw(`ifnull(deic${empresa}.descont6, 0)`),
-					observacao: `deic${empresa}.observac6`,
-					prazo: `deic${empresa}.tempoent6`,
-					formaPagamento: `deic${empresa}.forpag6`
+					quantidade: `${dece}.qtd6`,
+					marca: `${dece}.marca6`,
+					descricao: `${dece}.descricao6`,
+					data: `${deic}.data6`,
+					codigo: `${deic}.codigo6`,
+					item: `${deic}.item6`,
+					produto: `${deic}.produto6`,
+					valordoproduto: `${deic}.custo6`,
+					frete: knex.raw(`ifnull(${deic}.despesa6, 0)`),
+					st: knex.raw(`ifnull(${deic}.icmsst6, 0)`),
+					icms: knex.raw(`ifnull(${deic}.icms6, 0)`),
+					ipi: knex.raw(`ifnull(${deic}.ipi6, 0)`),
+					mva: knex.raw(`ifnull(${deic}.mva6, 0)`),
+					codbarras: `${deic}.codfabric6`,
+					formapagamento: knex.raw(`ifnull(${deic}.forpag6, 0)`),
+					desconto: knex.raw(`ifnull(${deic}.descont6, 0)`),
+					observacao: `${deic}.observac6`,
+					prazo: `${deic}.tempoent6`,
+					formaPagamento: `${deic}.forpag6`
 				}
 			).debug(false)
 
@@ -147,7 +158,7 @@ export class PriceService {
 		return [array];
 	}
 
-	async calcularFrete(cotacaoPayLoad: CotacaoTDOPayload) {
+	async calcularFrete(cotacaoPayLoad: CotacaoTDOPayload, compartilhada: boolean) {
 
 		const codigoCotacao = await this.cripto.publicDecript(cotacaoPayLoad.codigo, "Success2021");
 		const codigoFornecedor = await this.cripto.publicDecript(cotacaoPayLoad.fornecedor, "Success2021");
@@ -155,14 +166,22 @@ export class PriceService {
 
 
 		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
+		const dece = createTableNameWithBoolean(
+			'dece',
+			empresa,
+			compartilhada);
 
+		const deic = createTableNameWithBoolean(
+			'deic',
+			empresa,
+			compartilhada);
 		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
 
 
 
 		const result = await knex.raw(
-			`select ifnull(sum(despesa6), 0) as totalFrete  from dece${empresa} as dece,
-			deic${empresa} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
+			`select ifnull(sum(despesa6), 0) as totalFrete  from ${dece} as dece,
+			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);
 		return result[0];
@@ -170,26 +189,34 @@ export class PriceService {
 	}
 
 
-	async calcularTotal(cotacaoPayLoad: CotacaoTDOPayload, buscarIds: boolean) {
+	async calcularTotal(cotacaoPayLoad: CotacaoTDOPayload, buscarIds: boolean, compartilhada: boolean) {
 
 		const codigoCotacao = await this.cripto.publicDecript(cotacaoPayLoad.codigo, "Success2021");
 		const codigoFornecedor = await this.cripto.publicDecript(cotacaoPayLoad.fornecedor, "Success2021");
 		const empresa = await this.cripto.publicDecript(cotacaoPayLoad.codigoEmpresa, "Success2021");
 
 		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
+		const dece = createTableNameWithBoolean(
+			'dece',
+			empresa,
+			compartilhada);
 
+		const deic = createTableNameWithBoolean(
+			'deic',
+			empresa,
+			compartilhada);
 		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
 
 		const result = await knex.raw(
-			`select ifnull(sum(deic.vlrcuspro6 * dece.qtd6), 0) as total  from dece${empresa} as dece,
-			deic${empresa} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
+			`select ifnull(sum(deic.vlrcuspro6 * dece.qtd6), 0) as total  from ${dece} as dece,
+			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);
 
 		if (buscarIds) {
 			const ids = await knex.raw(
-				`select deic.item6  from dece${empresa} as dece,
-			deic${empresa} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
+				`select deic.item6  from ${dece} as dece,
+			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 			);
 			return [result[0][0], ids[0][0]];
@@ -198,19 +225,27 @@ export class PriceService {
 		}
 	}
 
-	async calcularTotalDesconto(cotacaoPayLoad: CotacaoTDOPayload) {
+	async calcularTotalDesconto(cotacaoPayLoad: CotacaoTDOPayload, compartilhada: boolean) {
 
 		const codigoCotacao = await this.cripto.publicDecript(cotacaoPayLoad.codigo, "Success2021");
 		const codigoFornecedor = await this.cripto.publicDecript(cotacaoPayLoad.fornecedor, "Success2021");
 		const empresa = await this.cripto.publicDecript(cotacaoPayLoad.codigoEmpresa, "Success2021");
 
 		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
+		const dece = createTableNameWithBoolean(
+			'dece',
+			empresa,
+			compartilhada);
 
+		const deic = createTableNameWithBoolean(
+			'deic',
+			empresa,
+			compartilhada);
 		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
 
 		const result = await knex.raw(
-			`select ifnull(sum(deic.descont6), 0) as totalDesconto  from dece${empresa} as dece,
-			deic${empresa} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
+			`select ifnull(sum(deic.descont6), 0) as totalDesconto  from ${dece} as dece,
+			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);
 		return result[0];
