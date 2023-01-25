@@ -254,7 +254,7 @@ export const retornaAliquotas = (custoProduto: number, frete: number, desconto: 
 
   const bcIcmsST = (custoBruto * mva) + custoBruto
 
-  const vlrSt = bcIcmsST * st
+  const vlrSt = bcIcmsST * (st / 100)
   console.log(custoBruto + vlrIpi + vlrSt)
   const formatado = abnt.arredonda(custoBruto + vlrIpi + vlrSt)
   console.log(Number(formatado))
