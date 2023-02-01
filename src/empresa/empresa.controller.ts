@@ -1,10 +1,13 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { CompartilhadaService } from 'src/compartilhada/compartilhada.service';
 import { EmpresaService } from './empresa.service';
 import { EmpresautilService } from './empresa.util.service';
 
 @Controller('empresa')
 export class EmpresaController {
-	constructor(private empresaService: EmpresaService, private empresaUtilService: EmpresautilService) { }
+	constructor(private empresaService: EmpresaService,
+		private empresaUtilService: EmpresautilService,
+		private compartilhadaService:CompartilhadaService) { }
 
 
 	@Get('/:contrato/:fornecedor/:codigo')
@@ -16,7 +19,8 @@ export class EmpresaController {
 
 	@Get('fornecedor/:contrato/:fornecedor/:codigo')
 	async getFornecedor(@Param('contrato') contrato: string, @Param('fornecedor') fornecedor: string, @Param('codigo') codigoEmpresa: string) {
-		const result = await this.empresaService.buscarFornecedor(contrato, codigoEmpresa, fornecedor);
+		const compartilhada = await this.compartilhadaService.retornaEcompartilhada(contrato, codigoEmpresa)
+		const result = await this.empresaService.buscarFornecedor(contrato, codigoEmpresa, fornecedor, compartilhada);
 		return result;
 	}
 

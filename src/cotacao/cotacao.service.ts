@@ -182,6 +182,10 @@ export class CotacaoService {
 			'dece',
 			codigoEmpresaDescriptografado,
 			compartilhada);
+			const da02 = createTableNameWithBoolean(
+				'da02',
+				codigoEmpresaDescriptografado,
+				compartilhada);
 
 		const cotacao = await knex.raw(
 			`select codigo6 as codigo from ${dece}
@@ -225,7 +229,7 @@ export class CotacaoService {
 		for (const cnpj of stringFornecedoresCriptografados) {
 			const raw = await knex.raw(
 				`select hex(cgc2) as cnpj, nome2 as nome, emacot2 as email,
-				codigo2 as codigoFornecedor from da02 where hex(cgc2) = '${cnpj}' limit 1`);
+				codigo2 as codigoFornecedor from ${da02} where hex(cgc2) = '${cnpj}' limit 1`);
 			const snapshot = raw[0][0];
 			const fornecedor: FornecedorData = {
 				cnpj: cnpj,
