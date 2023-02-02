@@ -23,6 +23,10 @@ export class CotacaoController {
 
 	@Post('/realizar-envio')
 	async receber(@Body() dadosSuccess: any, @Res() res: Response) {
+		console.clear();
+		console.log('=====realizar-envio====')
+		console.log(dadosSuccess)
+		console.log('=====realizar-envio====')
 		const compartilhada = await this.CompartilhadaService.retornaEcompartilhada(dadosSuccess.empresa.contratoEmpresaSuccess, dadosSuccess.empresa.numeroEmpresa)
 		const result = await this.cotacaoService.enviarEmailParaFornecedores(dadosSuccess, compartilhada);
 	
