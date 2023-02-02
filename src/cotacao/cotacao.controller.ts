@@ -27,7 +27,20 @@ export class CotacaoController {
 		console.log('=====realizar-envio====')
 		console.log(dadosSuccess)
 		console.log('=====realizar-envio====')
-		res.status(HttpStatus.OK).send({teste: "teste"})
+		const compartilhada = await this.CompartilhadaService.retornaEcompartilhada(dadosSuccess.empresa.contratoEmpresaSuccess, dadosSuccess.empresa.numeroEmpresa)
+		const result = await this.cotacaoService.enviarEmailParaFornecedores(dadosSuccess, compartilhada);
+	
+		if (result.empresa.contratoEmpresaSuccess === null) {
+				throw new NotFoundException(`Contrato não existe na base de dados`)
+		} else {
+			for (let fornecedor of result.fornecedores) {
+				if (fornecedor.enviado === false) {
+					res.status(HttpStatus.PARTIAL_CONTENT).send(result)
+					return;
+				}
+			}
+			res.status(HttpStatus.OK).send(result)
+		}
 	}
 	@Get('chave')
 	async converter(@Body() body: any) {
