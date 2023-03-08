@@ -208,7 +208,7 @@ export class PriceService {
 		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
 
 		const result = await knex.raw(
-			`select ifnull(sum(deic.vlrcuspro6 * dece.qtd6), 0) as total  from ${dece} as dece,
+			`select ifnull(sum(deic.vlrcuspro6), 0) as total  from ${dece} as dece,
 			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);

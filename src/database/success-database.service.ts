@@ -34,6 +34,10 @@ export class SuccessDatabaseService {
 				password,
 				database,
 			},
+			pool: {
+				max: 10,
+				acquireTimeoutMillis: 30000,
+			  },
 		})
 	}
 

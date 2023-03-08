@@ -34,7 +34,11 @@ export class DatabaseCotacaoService {
 				user: user,
 				password: password,
 				database: database
-			}
+			},
+			pool: {
+				max: 10,
+				acquireTimeoutMillis: 30000,
+			  },
 		})
 	}
 	getConnection() {

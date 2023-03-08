@@ -14,7 +14,11 @@ export class DatabaseService {
 				user: "usuario",
 				password: "gemmanjdj",
 				database: "sdsd"
-			}
+			},
+			pool: {
+				max: 10,
+				acquireTimeoutMillis: 30000,
+			  },
 		})
 	}
 	getConnection() {

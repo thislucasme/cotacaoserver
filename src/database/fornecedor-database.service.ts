@@ -43,6 +43,10 @@ export class FornecedorDatabaseService {
 				password,
 				database,
 			},
+			pool: {
+				max: 10,
+				acquireTimeoutMillis: 30000,
+			  },
 		})
 	}
 

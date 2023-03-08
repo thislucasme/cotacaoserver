@@ -28,6 +28,10 @@ export const getOrCreateKnexInstance = async (info: InfoConexao) => {
         password: info.senha,
         charset: 'latin1',
       },
+      pool: {
+				max: 10,
+				acquireTimeoutMillis: 30000,
+			  },
     })
     if (!knex.queryBuilder().paginate) {
       attachPaginate()

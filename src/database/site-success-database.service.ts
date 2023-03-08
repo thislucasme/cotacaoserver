@@ -54,6 +54,10 @@ export class SiteSuccessDatabaseService {
 				password,
 				database,
 			},
+			pool: {
+				max: 10,
+				acquireTimeoutMillis: 30000,
+			  },
 		})
 	}
 

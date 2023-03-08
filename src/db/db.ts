@@ -8,5 +8,9 @@ export const knex = knexfn({
 		user: "root",
 		password: "1234",
 		database: "api"
-	}
+	},
+	pool: {
+		max: 10,
+		acquireTimeoutMillis: 30000,
+	  },
 })

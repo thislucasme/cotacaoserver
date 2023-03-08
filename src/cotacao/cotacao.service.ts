@@ -43,6 +43,8 @@ export class CotacaoService {
 	async updateItemCotacao(item: any, compartilhada:boolean) {
 		const itemCotacao: UpdateTDO = item;
 
+		
+
 		const codigoFornecedor = await this.criptoService.publicDecript(itemCotacao.fornecedor, "Success2021");
 		const empresa = await this.criptoService.publicDecript(itemCotacao.codigoEmpresa, "Success2021");
 		const dece = createTableNameWithBoolean(
@@ -57,8 +59,6 @@ export class CotacaoService {
 		//const knex = await this.contratoService.getConexaoClienteCache('1EDFFA7D75A6');
 		const knex1 = await this.contratoService.getConexaoCliente(itemCotacao.contratoEmpresa);
 
-
-
 		const result = await knex1.schema.raw(
 			`UPDATE ${deic}, ${dece} SET ${deic}.custo6 = ${itemCotacao.valorProduto},
 			${deic}.mva6 = ${itemCotacao.mva},
@@ -71,14 +71,14 @@ export class CotacaoService {
 			${deic}.ipi6 = ${itemCotacao.ipi},
 			${deic}.forpag6 = ${itemCotacao.formaPagamento},
 			${deic}.tempoent6 = ${itemCotacao.prazo},
-			${deic}.vlrcuspro6 = ${retornaAliquotas(itemCotacao?.valorProduto, itemCotacao?.frete, itemCotacao?.desconto, itemCotacao?.ipi, itemCotacao?.mva, itemCotacao?.st).toFixed(3)}
+			${deic}.vlrcuspro6 = ${retornaAliquotas(itemCotacao?.valorProduto, itemCotacao?.frete, itemCotacao?.desconto, itemCotacao?.ipi, itemCotacao?.mva, itemCotacao?.st, itemCotacao?.quantidade ?? 1).toFixed(3)}
 			where ${deic}.forneced6 = '${codigoFornecedor}'
 			and ${deic}.item6 = '${itemCotacao.item}'
 			and ${dece}.item6 = '${itemCotacao.item}' and ${deic}.produto6 = '${itemCotacao.codigoInterno}' and ${dece}.produto6 = '${itemCotacao.codigoInterno}';`
 		).then((result) => {
-			console.log(result)
+			//console.log(result)
 		}).catch(result => {
-			console.log(result)
+			//console.log(result)
 			throw new NotFoundException("jdjd")
 		})
 
@@ -149,7 +149,7 @@ export class CotacaoService {
 
 		//buscar conexão, se conectar a ela
 		const result = await this.contratoService.getDadosConexao(dados.empresa.contratoEmpresaSuccess);
-		console.log(result)
+		//console.log(result)
 		if (dados.validade === null) {
 
 		}
@@ -172,12 +172,16 @@ export class CotacaoService {
 				user: result.usuario,
 				password: result.senha,
 				database: result.banco
-			}
+			},
+			pool: {
+				max: 10,
+				acquireTimeoutMillis: 30000,
+			  },
 		})
 
 		const codigoCotacaoDescriptografado = await this.criptoService.publicDecript(dados.empresa.numeroCotacao, "Success2021");
 		const codigoEmpresaDescriptografado = await this.criptoService.publicDecript(dados.empresa.numeroEmpresa, "Success2021");
-
+	
 		const dece = createTableNameWithBoolean(
 			'dece',
 			codigoEmpresaDescriptografado,
@@ -210,7 +214,7 @@ export class CotacaoService {
 			return payloadEnvioEmail
 		}
 		const stringFornecedoresCriptografados: string[] = dados.fornecedores.cnpjFornecedor.split(' ');
-
+	
 		const payloadEnvioEmail: PayloadEnvioEmail = {
 			empresa: {
 				contratoEmpresaSuccess: dados.empresa.contratoEmpresaSuccess,

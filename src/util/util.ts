@@ -249,7 +249,7 @@ export const createTableName = (tabela: string, empresa: string) => {
 export const createTableNameWithBoolean = (tabela: string, empresa: string, compartilhada: boolean) => {
   return compartilhada ? tabela : tabela + empresa.toLowerCase();
 }
-export const retornaAliquotas = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number): number => {
+export const retornaAliquotasRascunho = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number): number => {
   const custoBruto = custoProduto + frete - desconto;
 
   const vlrIpi = custoBruto * ipi
@@ -260,5 +260,13 @@ export const retornaAliquotas = (custoProduto: number, frete: number, desconto: 
   console.log(custoBruto + vlrIpi + vlrSt)
   const formatado = abnt.arredonda(custoBruto + vlrIpi + vlrSt)
   console.log(Number(formatado))
+  return Number(formatado)
+}
+export const retornaAliquotas = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number, quantidade: number): number => {
+  let baseSt = custoProduto + frete + ((custoProduto + frete) *(mva / 100));
+  let icmsSt = baseSt * (st / 100);
+  let valorIpi = (custoProduto + frete) * (ipi / 100)
+  let custoTotal = custoProduto + frete +icmsSt+valorIpi;
+  const formatado = abnt.arredonda(custoTotal * quantidade)
   return Number(formatado)
 }
