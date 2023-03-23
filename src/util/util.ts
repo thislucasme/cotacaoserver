@@ -267,6 +267,6 @@ export const retornaAliquotas = (custoProduto: number, frete: number, desconto: 
   let icmsSt = baseSt * (st / 100);
   let valorIpi = (custoProduto + frete) * (ipi / 100)
   let custoTotal = custoProduto + frete +icmsSt+valorIpi;
-  const formatado = abnt.arredonda(custoTotal * quantidade)
+  const formatado = abnt.arredonda(custoTotal)
   return Number(formatado)
 }

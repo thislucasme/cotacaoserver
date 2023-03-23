@@ -146,7 +146,9 @@ export class PriceService {
 					desconto: knex.raw(`ifnull(${deic}.descont6, 0)`),
 					observacao: `${deic}.observac6`,
 					prazo: `${deic}.tempoent6`,
-					formaPagamento: `${deic}.forpag6`
+					formaPagamento: `${deic}.forpag6`,
+					valorComTributo: knex.raw(`(${deic}.custo6 + ${deic}.despesa6 + ((${deic}.custo6 + ${deic}.despesa6 + ((${deic}.custo6 + ${deic}.despesa6) * (${deic}.mva6 / 100))) * (${deic}.icmsst6 / 100)) + ((${deic}.custo6 + ${deic}.despesa6) * (${deic}.ipi6 / 100)))`),
+					status: knex.raw(`${dece}.flag6`)
 				}
 			).debug(false)
 
@@ -208,7 +210,7 @@ export class PriceService {
 		const knex = await this.getConexaoCliente(cotacaoPayLoad.contratoEmpresa)
 
 		const result = await knex.raw(
-			`select ifnull(sum(deic.vlrcuspro6), 0) as total  from ${dece} as dece,
+			`select ifnull(sum( (deic.custo6 + deic.despesa6 + ((deic.custo6 + deic.despesa6 + ((deic.custo6 + deic.despesa6) * (deic.mva6 / 100))) * (deic.icmsst6 / 100)) + ((deic.custo6 + deic.despesa6) * (deic.ipi6 / 100)))* dece.qtd6), 0) as total   from ${dece} as dece,
 			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);

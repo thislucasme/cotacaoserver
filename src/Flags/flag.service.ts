@@ -34,6 +34,30 @@ export class FlagService {
 		);
 		return result[0];
 	}
+	async isBloqueado(cotacaoPayload: CotacaoTDOPayload, compartilhada: boolean) {
+
+		const dadosEmpresa = await this.flagServiceUtil.getConexaoCliente(cotacaoPayload.contratoEmpresa);
+
+		const codigo = await this.criptoService.publicDecript(cotacaoPayload.codigo, "Success2021");
+		const fornecedor = await this.criptoService.publicDecript(cotacaoPayload.fornecedor, "Success2021");
+		const empresa = await this.criptoService.publicDecript(cotacaoPayload.codigoEmpresa, "Success2021");
+
+		const dece = createTableNameWithBoolean(
+			'dece',
+			empresa,
+			compartilhada);
+
+		const deic = createTableNameWithBoolean(
+			'deic',
+			empresa,
+			compartilhada);
+		const [[{ status }]] = await dadosEmpresa.raw(
+			`select dece.flag6 as status from ${dece} as dece,
+			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6
+			and dece.codigo6 = '${codigo}' and deic.forneced6 = '${fornecedor}' limit 1; `
+		);
+		return {status};
+	}
 	async finalizarCotacao(cotacaoTDOPayload: CotacaoTDOPayload, compartilhada: boolean) {
 		const knex = await this.flagServiceUtil.getConexaoCliente(cotacaoTDOPayload.contratoEmpresa);
 

@@ -18,7 +18,6 @@ export class PriceController {
 	async getAllItensFromCotacao(
 		@Param('codCotacao') codCotacao: string, @Param('codFornecedor')
 		codFornecedor: string, @Param('codEmpresa') codEmpresa: string, @Param('codContrato') codContrato: string) {
-			console.log(codContrato)
 
 		const compartilhada = await this.compartilhadaService.retornaEcompartilhada(codContrato, codEmpresa)
 

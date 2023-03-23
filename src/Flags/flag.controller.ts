@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Res } from '@nestjs/common';
 import { CotacaoTDOPayload } from 'src/models/types';
 import { Response } from 'express';
 import { FlagService } from './flag.service';
@@ -6,7 +6,7 @@ import { CompartilhadaService } from 'src/compartilhada/compartilhada.service';
 
 @Controller('flag')
 export class FlagController {
-	constructor(private flagService: FlagService, private compartilhadaService:CompartilhadaService) { }
+	constructor(private flagService: FlagService, private compartilhadaService: CompartilhadaService) { }
 
 	@Post('verificar-flags')
 	async verificarFlags(@Body() body: CotacaoTDOPayload, @Res() res: Response) {
@@ -14,7 +14,17 @@ export class FlagController {
 		const result = await this.flagService.consultarFlags(body, compartilhada);
 		res.status(HttpStatus.ACCEPTED).send(result)
 	}
+	@Post('verificar-flags-bloqueado')
+	async verificarFlagBloqueado(@Body() body: CotacaoTDOPayload, @Res() res: Response) {
+		try {
+			const compartilhada = await this.compartilhadaService.retornaEcompartilhada(body?.contratoEmpresa, body?.codigoEmpresa)
+			const result = await this.flagService.isBloqueado(body, compartilhada);
+			res.status(HttpStatus.ACCEPTED).send(result)
+		} catch (e) {
+			throw new HttpException({ msg: "Ocorreu um erro" }, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
+	}
 	@Post('finalizar-cotacao')
 	async finalizarCotacao(@Body() body: CotacaoTDOPayload, @Res() res: Response) {
 		const compartilhada = await this.compartilhadaService.retornaEcompartilhada(body?.contratoEmpresa, body?.codigoEmpresa)
