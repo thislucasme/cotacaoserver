@@ -33,6 +33,7 @@ export class PriceController {
 
 		const total = await this.priceService.calcularTotal(body, false, compartilhada);
 		const frete = await this.priceService.calcularFrete(body, compartilhada);
+		const nome =  await this.priceService.getNome(codCotacao, codFornecedor, codContrato, codEmpresa, compartilhada)
 		const data = await this.priceService.getItensCotacao(codCotacao, codFornecedor, codContrato, codEmpresa, compartilhada)
 		const totalDesconto = await this.priceService.calcularTotalDesconto(body, compartilhada);
 
@@ -46,7 +47,7 @@ export class PriceController {
 			}
 		}
 
-		return [data, total, totalDesconto, frete, [{ "isReady": isReady }], [{ "formaPagamento": data[0][0]?.formapagamento }], [{ "numeroCotacao": data[0][0]?.codigo }]];
+		return [data, total, totalDesconto, frete, [{ "isReady": isReady }], [{ "formaPagamento": data[0][0]?.formapagamento }],{nomeFuncionario:nome}	, [{ "numeroCotacao": data[0][0]?.codigo }]];
 	}
 	@Post('update')
 	async updateItemCotacao(@Body() body: types.ItemCotacaoTDO) {

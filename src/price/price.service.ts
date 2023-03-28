@@ -95,7 +95,52 @@ export class PriceService {
 		return parsedEmpresas
 	}
 
+	async getNome(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string, compartilhada:boolean) {
 
+		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
+		// const contratoE = await this.cripto.publicDecript(contrato, "Success2021");
+		// console.log(contratoE)
+		const codigoFornecedor = await this.cripto.publicDecript(codFornecedor, "Success2021");
+		const empresa = await this.cripto.publicDecript(codigoEmpresa, "Success2021");
+
+		//const dadosEmpresa = await this.contratoService.getDadosConexao('1EDFFA7D75A6');
+
+		const dece = createTableNameWithBoolean(
+			'dece',
+			empresa,
+			compartilhada);
+
+		const deic = createTableNameWithBoolean(
+			'deic',
+			empresa,
+			compartilhada);
+
+		const knex = await this.getConexaoCliente(contrato)
+
+		// Aqui um exemplo de usar um objeto no select, acho que a sintaxe fica mais limpa
+		const query = knex(deic)
+			.leftJoin(dece,
+				(k) => k.on(`${dece}.codigo6`, `${deic}.codigo6`).andOn(`${dece}.item6`, `${deic}.item6`)
+			)
+			.leftJoin('ps01', `${dece}.usuario6`, 'ps01.codigo')
+			.where(`${deic}.forneced6`, codigoFornecedor)
+			.andWhere(`${deic}.codigo6`, codigoCotacao)
+			.select(
+				{
+					//Aqui você termina de colocar as colunas que você quer, lembrando que como tem um join tem que incluir o nome da tabela antes
+				
+					usuario: knex.raw(`hex(ps01.usuario)`)
+					
+				}
+			).debug(false).limit(1)
+
+		const result = await query;
+
+
+		const array: Array<any> = result;
+		const nomeDescript = await this.cripto.publicDecript(array[0]?.usuario, "Success2021");
+		return nomeDescript
+	}
 	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string, compartilhada:boolean) {
 
 		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
@@ -123,6 +168,7 @@ export class PriceService {
 			.leftJoin(dece,
 				(k) => k.on(`${dece}.codigo6`, `${deic}.codigo6`).andOn(`${dece}.item6`, `${deic}.item6`)
 			)
+			.leftJoin('ps01', `${dece}.usuario6`, 'ps01.codigo')
 			.where(`${deic}.forneced6`, codigoFornecedor)
 			.andWhere(`${deic}.codigo6`, codigoCotacao)
 			.select(
@@ -148,7 +194,9 @@ export class PriceService {
 					prazo: `${deic}.tempoent6`,
 					formaPagamento: `${deic}.forpag6`,
 					valorComTributo: knex.raw(`(${deic}.custo6 + ${deic}.despesa6 + ((${deic}.custo6 + ${deic}.despesa6 + ((${deic}.custo6 + ${deic}.despesa6) * (${deic}.mva6 / 100))) * (${deic}.icmsst6 / 100)) + ((${deic}.custo6 + ${deic}.despesa6) * (${deic}.ipi6 / 100)))`),
-					status: knex.raw(`${dece}.flag6`)
+					status: knex.raw(`${dece}.flag6`),
+					usuario: knex.raw(`hex(ps01.usuario)`)
+					
 				}
 			).debug(false)
 

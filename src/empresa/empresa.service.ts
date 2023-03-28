@@ -21,19 +21,21 @@ export class EmpresaService {
 			'razao',
 			'empresa',
 			'cgc',
-			'cidade'
+			'cidade',
+			'telefone'
 		]).where('codigo', '=', numeroEmpresa)
 
-		const parsedEmpresas: Empresa[] = empresas.map(empresa => ({
+		const [parsedEmpresas]: Empresa[] = empresas.map(empresa => ({
 			codigo: empresa.codigo,
 			razao: restaurar(empresa.razao).trim(),
 			empresa: restaurar(empresa.empresa).trim(),
 			cnpj: empresa.cgc,
-			cidade: empresa.cidade
+			cidade: empresa.cidade,
+			telefone: empresa.telefone
 		}))
 
 
-		return parsedEmpresas[0];
+		return parsedEmpresas;
 	}
 	async buscarFornecedor(contratoEmpresa: string, codigoEmpresa: string, codFornecedor: string, compartilhada:boolean) {
 		const codigoEmpresaDescriptografado = await this.criptoService.publicDecript(codigoEmpresa, "Success2021");
