@@ -6,7 +6,7 @@ import { CriptoService } from 'src/cripto/cripto.service';
 import { getOrCreateKnexInstance } from 'src/database/knexCache';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
 import { CotacaoTDOPayload } from 'src/models/types';
-import { createTableNameWithBoolean } from 'src/util/util';
+import { createTableNameWithBoolean, retornaAliquotas } from 'src/util/util';
 const ABNT_5891_1977 = require('arredondamentoabnt').ABNT_5891_1977
 const abnt = new ABNT_5891_1977(2);
 @Injectable()
@@ -95,7 +95,7 @@ export class PriceService {
 		return parsedEmpresas
 	}
 
-	async getNome(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string, compartilhada:boolean) {
+	async getNome(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string, compartilhada: boolean) {
 
 		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
 		// const contratoE = await this.cripto.publicDecript(contrato, "Success2021");
@@ -128,9 +128,9 @@ export class PriceService {
 			.select(
 				{
 					//Aqui você termina de colocar as colunas que você quer, lembrando que como tem um join tem que incluir o nome da tabela antes
-				
+
 					usuario: knex.raw(`hex(ps01.usuario)`)
-					
+
 				}
 			).debug(false).limit(1)
 
@@ -141,7 +141,7 @@ export class PriceService {
 		const nomeDescript = await this.cripto.publicDecript(array[0]?.usuario, "Success2021");
 		return nomeDescript
 	}
-	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string, compartilhada:boolean) {
+	async getItensCotacao(codCotacao: string, codFornecedor: string, contrato: string, codigoEmpresa: string, compartilhada: boolean) {
 
 		const codigoCotacao = await this.cripto.publicDecript(codCotacao, "Success2021");
 		// const contratoE = await this.cripto.publicDecript(contrato, "Success2021");
@@ -193,18 +193,22 @@ export class PriceService {
 					observacao: `${deic}.observac6`,
 					prazo: `${deic}.tempoent6`,
 					formaPagamento: `${deic}.forpag6`,
-					valorComTributo: knex.raw(`(${deic}.custo6 + ${deic}.despesa6 + ((${deic}.custo6 + ${deic}.despesa6 + ((${deic}.custo6 + ${deic}.despesa6) * (${deic}.mva6 / 100))) * (${deic}.icmsst6 / 100)) + ((${deic}.custo6 + ${deic}.despesa6) * (${deic}.ipi6 / 100)))`),
+					valorComTributo: knex.raw(
+						`0`
+					),
 					status: knex.raw(`${dece}.flag6`),
 					usuario: knex.raw(`hex(ps01.usuario)`)
-					
+
 				}
-			).debug(false)
-
-		console.log(query.toQuery())
+			)
 		const result = await query;
-
-
-		const array: Array<any> = result;
+		const dadosAtualizados = result.map(item => {
+			return {
+			  ...item,
+			  valorComTributo:retornaAliquotas(item?.valordoproduto, item?.frete, item?.desconto, item?.ipi, item?.mva, item?.st, item?.quantidade)
+			}
+		  });
+		const array: Array<any> = dadosAtualizados;
 		return [array];
 	}
 

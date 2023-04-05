@@ -33,8 +33,6 @@ export class EmpresaService {
 			cidade: empresa.cidade,
 			telefone: empresa.telefone
 		}))
-
-
 		return parsedEmpresas;
 	}
 	async buscarFornecedor(contratoEmpresa: string, codigoEmpresa: string, codFornecedor: string, compartilhada:boolean) {

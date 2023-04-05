@@ -262,11 +262,21 @@ export const retornaAliquotasRascunho = (custoProduto: number, frete: number, de
   console.log(Number(formatado))
   return Number(formatado)
 }
-export const retornaAliquotas = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number, quantidade: number): number => {
-  let baseSt = custoProduto + frete + ((custoProduto + frete) *(mva / 100));
+export const retornaAliquotasRascunhoDois = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number, quantidade: number): number => {
+  let baseSt = custoProduto + frete + ((custoProduto + frete) * (mva / 100));
   let icmsSt = baseSt * (st / 100);
   let valorIpi = (custoProduto + frete) * (ipi / 100)
-  let custoTotal = custoProduto + frete +icmsSt+valorIpi;
+  let custoTotal = custoProduto + frete + icmsSt + valorIpi;
   const formatado = abnt.arredonda(custoTotal)
   return Number(formatado)
 }
+export const retornaAliquotas = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number, quantidade: number): number => {
+  const baseCalSt = (custoProduto + frete - desconto) + (custoProduto + frete - desconto) * mva / 100;
+  const valorSt = baseCalSt * st / 100;
+  const baseCalIpi = custoProduto + frete - desconto;
+  const valorIpi = baseCalIpi * ipi / 100;
+  const valorUnitario = custoProduto + frete - desconto + valorSt + valorIpi;
+  const formatado = abnt.arredonda(valorUnitario)
+  return Number(formatado)
+}
+
