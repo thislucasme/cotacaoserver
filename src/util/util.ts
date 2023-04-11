@@ -276,7 +276,8 @@ export const retornaAliquotas = (custoProduto: number, frete: number, desconto: 
   const baseCalIpi = custoProduto + frete - desconto;
   const valorIpi = baseCalIpi * ipi / 100;
   const valorUnitario = custoProduto + frete - desconto + valorSt + valorIpi;
-  const formatado = abnt.arredonda(valorUnitario)
+  const formatado = abnt.arredonda(valorUnitario * quantidade)
   return Number(formatado)
 }
+
 
