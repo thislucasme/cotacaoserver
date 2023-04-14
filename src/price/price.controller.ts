@@ -39,7 +39,7 @@ export class PriceController {
 
 	
 
-		const totalAtualizado = data[0].reduce((acumulador, atual) => acumulador + atual?.valorComTributo * atual?.quantidade, 0)
+		const totalAtualizado = data[0].reduce((acumulador, atual) => acumulador + atual?.valorComTributo, 0)
 		const dataTratado = data[0];
 		let isReady = true;
 		for (let i = 0; i < dataTratado.length; i++) {

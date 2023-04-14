@@ -171,6 +171,8 @@ export class PriceService {
 			.leftJoin('ps01', `${dece}.usuario6`, 'ps01.codigo')
 			.where(`${deic}.forneced6`, codigoFornecedor)
 			.andWhere(`${deic}.codigo6`, codigoCotacao)
+			.andWhere(`${deic}.sr_deleted`, '<>', 'T')
+			.andWhere(`${dece}.sr_deleted`, '<>', 'T')
 			.select(
 				{
 					//Aqui você termina de colocar as colunas que você quer, lembrando que como tem um join tem que incluir o nome da tabela antes
@@ -236,7 +238,8 @@ export class PriceService {
 		const result = await knex.raw(
 			`select ifnull(sum(despesa6), 0) as totalFrete  from ${dece} as dece,
 			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
-			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
+			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'
+			and dece.sr_deleted != 'T' and deic.sr_deleted != 'T'; `
 		);
 		return result[0];
 
@@ -263,7 +266,9 @@ export class PriceService {
 
 		const result = await knex.raw(
 			`select ifnull(sum( (deic.custo6 + deic.despesa6 + ((deic.custo6 + deic.despesa6 + ((deic.custo6 + deic.despesa6) * (deic.mva6 / 100))) * (deic.icmsst6 / 100)) + ((deic.custo6 + deic.despesa6) * (deic.ipi6 / 100)))* dece.qtd6), 0) as total   from ${dece} as dece,
-			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
+			${deic} as deic where dece.codigo6 = deic.codigo6
+			and dece.sr_deleted != 'T' and deic.sr_deleted != 'T'
+			and dece.item6 = deic.item6 and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);
 
@@ -271,7 +276,9 @@ export class PriceService {
 			const ids = await knex.raw(
 				`select deic.item6  from ${dece} as dece,
 			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
-			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
+			and dece.sr_deleted != 'T' and deic.sr_deleted != 'T'
+			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'
+			; `
 			);
 			return [result[0][0], ids[0][0]];
 		} else {
@@ -300,6 +307,8 @@ export class PriceService {
 		const result = await knex.raw(
 			`select ifnull(sum(deic.descont6), 0) as totalDesconto  from ${dece} as dece,
 			${deic} as deic where dece.codigo6 = deic.codigo6 and dece.item6 = deic.item6 and
+			dece.sr_deleted != 'T' and deic.sr_deleted != 'T'
+			and
 			dece.codigo6 = '${codigoCotacao}' and deic.forneced6 = '${codigoFornecedor}'; `
 		);
 		return result[0];
