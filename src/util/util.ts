@@ -281,4 +281,30 @@ export const retornaAliquotas = (custoProduto: number, frete: number, desconto: 
   return Number(formatado)
 }
 
+export const retornarTributosSoma = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number, quantidade: number): number => {
+  const baseCalSt = ((custoProduto * quantidade) + frete - desconto) + ((custoProduto * quantidade) + frete - desconto) * (mva / 100);
+  const valorSt = baseCalSt * st / 100;
+  const baseCalIpi = (custoProduto * quantidade) + frete - desconto;
+  const valorIpi = baseCalIpi * ipi / 100;
+  const valorUnitario = (custoProduto * quantidade) + frete - desconto + valorSt + valorIpi;
+  return Number(abnt.arredonda(valorIpi + valorSt))
+}
+export const retornarSt = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number, quantidade: number): number => {
+  const baseCalSt = ((custoProduto * quantidade) + frete - desconto) + ((custoProduto * quantidade) + frete - desconto) * (mva / 100);
+  const valorSt = baseCalSt * st / 100;
+  const baseCalIpi = (custoProduto * quantidade) + frete - desconto;
+  const valorIpi = baseCalIpi * ipi / 100;
+  const valorUnitario = (custoProduto * quantidade) + frete - desconto + valorSt + valorIpi;
+  return Number(abnt.arredonda(valorSt))
+}
+
+export const retornarIpi = (custoProduto: number, frete: number, desconto: number, ipi: number, mva: number, st: number, quantidade: number): number => {
+  const baseCalSt = ((custoProduto * quantidade) + frete - desconto) + ((custoProduto * quantidade) + frete - desconto) * (mva / 100);
+  const valorSt = baseCalSt * st / 100;
+  const baseCalIpi = (custoProduto * quantidade) + frete - desconto;
+  const valorIpi = baseCalIpi * ipi / 100;
+  const valorUnitario = (custoProduto * quantidade) + frete - desconto + valorSt + valorIpi;
+  return Number(abnt.arredonda(valorIpi))
+}
+
 

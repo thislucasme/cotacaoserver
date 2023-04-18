@@ -5,6 +5,7 @@ import { CotacaoService } from 'src/cotacao/cotacao.service';
 import * as types from 'src/models/types';
 import { CotacaoTDOPayload } from 'src/models/types';
 import { PriceService } from './price.service';
+import { retornarTributosSoma } from 'src/util/util';
 
 @Controller('price')
 export class PriceController {
@@ -40,6 +41,11 @@ export class PriceController {
 	
 
 		const totalAtualizado = data[0].reduce((acumulador, atual) => acumulador + atual?.valorComTributo, 0)
+		const totalTributos = data[0].reduce((acumulador, objeto:any) => {
+			const valorIpi = objeto?.valorTotalIpi ?? 0; // caso o valor seja null ou undefined, assume 0
+			const valorSt = objeto?.valorTotalSt ?? 0; // caso o valor seja null ou undefined, assume 0
+			return acumulador + valorIpi + valorSt;
+		  }, 0);
 		const dataTratado = data[0];
 		let isReady = true;
 		for (let i = 0; i < dataTratado.length; i++) {
@@ -50,7 +56,7 @@ export class PriceController {
 			}
 		}
 
-		return [data, [{total: totalAtualizado}], totalDesconto, frete, [{ "isReady": isReady }], [{ "formaPagamento": data[0][0]?.formapagamento }],{nomeFuncionario:nome}	, [{ "numeroCotacao": data[0][0]?.codigo }]];
+		return [data, [{total: totalAtualizado}], totalDesconto, frete, [{ "isReady": isReady }], [{ "formaPagamento": data[0][0]?.formapagamento }],{nomeFuncionario:nome}	, [{ "numeroCotacao": data[0][0]?.codigo }], [{ totalTributos}]];
 	}
 	@Post('update')
 	async updateItemCotacao(@Body() body: types.ItemCotacaoTDO) {

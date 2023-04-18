@@ -145,3 +145,28 @@ export type UpdateTDO = {
 	observacao: string;
 	prazo: number;
 }
+export interface ItemCotacao {
+	quantidade: number;
+	marca: string;
+	descricao: string;
+	data: string;
+	codigo: string;
+	item: string;
+	produto: string;
+	valordoproduto: number;
+	frete: number;
+	st: number;
+	icms: number;
+	ipi: number;
+	mva: number;
+	codbarras: string | null;
+	formapagamento: string;
+	desconto: number;
+	observacao: string | null;
+	prazo: string;
+	formaPagamento: string;
+	valorComTributo: number;
+	status: string;
+	usuario: string;
+  }
+  

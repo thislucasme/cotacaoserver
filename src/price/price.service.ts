@@ -6,7 +6,7 @@ import { CriptoService } from 'src/cripto/cripto.service';
 import { getOrCreateKnexInstance } from 'src/database/knexCache';
 import { SiteSuccessDatabaseService } from 'src/database/site-success-database.service';
 import { CotacaoTDOPayload } from 'src/models/types';
-import { createTableNameWithBoolean, retornaAliquotas } from 'src/util/util';
+import { createTableNameWithBoolean, retornaAliquotas, retornarIpi, retornarSt, retornarTributosSoma } from 'src/util/util';
 const ABNT_5891_1977 = require('arredondamentoabnt').ABNT_5891_1977
 const abnt = new ABNT_5891_1977(2);
 @Injectable()
@@ -207,7 +207,9 @@ export class PriceService {
 		const dadosAtualizados = result.map(item => {
 			return {
 			  ...item,
-			  valorComTributo:retornaAliquotas(item?.valordoproduto, item?.frete, item?.desconto, item?.ipi, item?.mva, item?.st, item?.quantidade)
+			  valorComTributo:retornaAliquotas(item?.valordoproduto, item?.frete, item?.desconto, item?.ipi, item?.mva, item?.st, item?.quantidade),
+			  valorTotalIpi: retornarIpi(item?.valordoproduto, item?.frete, item?.desconto, item?.ipi, item?.mva, item?.st, item?.quantidade),
+			  valorTotalSt: retornarSt(item?.valordoproduto, item?.frete, item?.desconto, item?.ipi, item?.mva, item?.st, item?.quantidade)
 			}
 		  });
 		const array: Array<any> = dadosAtualizados;
