@@ -24,7 +24,10 @@ export class CotacaoController {
 	@Post('/realizar-envio')
 	async receber(@Body() dadosSuccess: any, @Res() res: Response) {
 		const compartilhada = await this.CompartilhadaService.retornaEcompartilhada(dadosSuccess.empresa.contratoEmpresaSuccess, dadosSuccess.empresa.numeroEmpresa)
-		const result = await this.cotacaoService.enviarEmailParaFornecedores(dadosSuccess, compartilhada);
+		const compartilhadaDa02 = await this.CompartilhadaService.retornaEcompartilhadaDa02(dadosSuccess.empresa.contratoEmpresaSuccess, dadosSuccess.empresa.numeroEmpresa)
+		console.log("******", "*******")
+		console.log("******", compartilhadaDa02, "*******")
+		const result = await this.cotacaoService.enviarEmailParaFornecedores(dadosSuccess, compartilhada, compartilhadaDa02);
 	
 		if (result.empresa.contratoEmpresaSuccess === null) {
 				throw new NotFoundException(`Contrato não existe na base de dados`)

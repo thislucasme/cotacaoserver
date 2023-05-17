@@ -136,7 +136,7 @@ export class CotacaoService {
 		}
 		return true;
 	}
-	async enviarEmailParaFornecedores(dados: PayloadSuccess, compartilhada:boolean): Promise<PayloadEnvioEmail | null> {
+	async enviarEmailParaFornecedores(dados: PayloadSuccess, compartilhada:boolean, compartilhadaDa02:boolean): Promise<PayloadEnvioEmail | null> {
 
 		//verifica se a data recebida está no formato válido
 
@@ -181,7 +181,7 @@ export class CotacaoService {
 
 		const codigoCotacaoDescriptografado = await this.criptoService.publicDecript(dados.empresa.numeroCotacao, "Success2021");
 		const codigoEmpresaDescriptografado = await this.criptoService.publicDecript(dados.empresa.numeroEmpresa, "Success2021");
-	
+	console.log("****",codigoEmpresaDescriptografado)
 		const dece = createTableNameWithBoolean(
 			'dece',
 			codigoEmpresaDescriptografado,
@@ -189,7 +189,7 @@ export class CotacaoService {
 			const da02 = createTableNameWithBoolean(
 				'da02',
 				codigoEmpresaDescriptografado,
-				compartilhada);
+				compartilhadaDa02);
 
 		const cotacao = await knex.raw(
 			`select codigo6 as codigo from ${dece}

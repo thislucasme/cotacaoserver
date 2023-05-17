@@ -20,7 +20,8 @@ export class EmpresaController {
 	@Get('fornecedor/:contrato/:fornecedor/:codigo')
 	async getFornecedor(@Param('contrato') contrato: string, @Param('fornecedor') fornecedor: string, @Param('codigo') codigoEmpresa: string) {
 		const compartilhada = await this.compartilhadaService.retornaEcompartilhada(contrato, codigoEmpresa)
-		const result = await this.empresaService.buscarFornecedor(contrato, codigoEmpresa, fornecedor, compartilhada);
+		const compartilhadaDa02 = await this.compartilhadaService.retornaEcompartilhadaDa02(contrato, codigoEmpresa)
+		const result = await this.empresaService.buscarFornecedor(contrato, codigoEmpresa, fornecedor, compartilhada, compartilhadaDa02);
 		return result;
 	}
 

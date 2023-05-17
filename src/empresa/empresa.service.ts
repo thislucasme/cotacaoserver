@@ -35,12 +35,12 @@ export class EmpresaService {
 		}))
 		return parsedEmpresas;
 	}
-	async buscarFornecedor(contratoEmpresa: string, codigoEmpresa: string, codFornecedor: string, compartilhada:boolean) {
+	async buscarFornecedor(contratoEmpresa: string, codigoEmpresa: string, codFornecedor: string, compartilhada:boolean, compartilhadaDa02:boolean) {
 		const codigoEmpresaDescriptografado = await this.criptoService.publicDecript(codigoEmpresa, "Success2021");
 		const da02 = createTableNameWithBoolean(
 			'da02',
 			codigoEmpresaDescriptografado,
-			compartilhada);
+			compartilhadaDa02);
 		const knex = await this.empresaUtil.getConexaoCliente(contratoEmpresa);
 		const numeroFornecedorDescripted = await this.criptoService.publicDecript(codFornecedor, "Success2021");
 		const raw = await knex.raw(`select hex(cgc2) as cnpj, emacot2 as email, nome2 as nome from ${da02} where codigo2 = '${numeroFornecedorDescripted}' limit 1`);
